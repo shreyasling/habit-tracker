@@ -475,6 +475,8 @@ function App() {
               tasks={tasks}
               completionData={completionData}
               onToggleCompletion={handleToggleCompletion}
+              onEditTask={handleEditTask}
+              onDeleteTask={handleDeleteTask}
             />
           )}
 

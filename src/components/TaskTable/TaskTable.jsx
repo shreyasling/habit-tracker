@@ -24,6 +24,7 @@ function TaskTable({
     const [selectedDays, setSelectedDays] = useState([]);
     const [loadingCells, setLoadingCells] = useState({}); // Track loading state per cell
     const [deleteConfirm, setDeleteConfirm] = useState({ open: false, taskId: null, taskName: '' });
+    const [selectedTaskId, setSelectedTaskId] = useState(null); // For mobile tap-to-reveal actions
     const days = useMemo(() => getDaysArray(year, month), [year, month]);
     const daysInMonth = days.length;
     const tableRef = useRef(null);
@@ -315,12 +316,19 @@ function TaskTable({
                                                 </button>
                                             </div>
                                         ) : (
-                                            <div className="task-name-content">
+                                            <div
+                                                className={`task-name-content ${selectedTaskId === task.id ? 'selected' : ''}`}
+                                                onClick={() => setSelectedTaskId(selectedTaskId === task.id ? null : task.id)}
+                                            >
                                                 <span className="task-name">{task.name}</span>
                                                 <div className="task-actions">
                                                     <button
                                                         className="action-btn edit"
-                                                        onClick={() => handleStartEdit(task)}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleStartEdit(task);
+                                                            setSelectedTaskId(null);
+                                                        }}
                                                         title="Edit task"
                                                     >
                                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -330,7 +338,11 @@ function TaskTable({
                                                     </button>
                                                     <button
                                                         className="action-btn delete"
-                                                        onClick={() => handleDeleteClick(task)}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleDeleteClick(task);
+                                                            setSelectedTaskId(null);
+                                                        }}
                                                         title="Delete task"
                                                     >
                                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

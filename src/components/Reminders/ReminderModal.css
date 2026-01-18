@@ -247,7 +247,112 @@
     transition: all var(--transition-fast);
 }
 
-.save-btn:hover {
+.save-btn:hover:not(:disabled) {
     background: var(--color-accent-hover);
     transform: translateY(-1px);
+}
+
+.save-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Permission status colors */
+.setting-status.granted {
+    color: var(--color-accent);
+}
+
+/* Permission help section */
+.permission-help {
+    background: var(--color-bg-tertiary);
+    border: 1px solid var(--color-warning);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+}
+
+.permission-help p {
+    font-weight: 500;
+    margin-bottom: var(--spacing-sm);
+    color: var(--color-warning);
+}
+
+.permission-help ol {
+    margin: 0;
+    padding-left: var(--spacing-lg);
+}
+
+.permission-help li {
+    margin-bottom: 4px;
+}
+
+/* Not supported message */
+.not-supported-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-xl);
+    color: var(--color-text-tertiary);
+}
+
+.not-supported-message svg {
+    width: 48px;
+    height: 48px;
+    color: var(--color-warning);
+}
+
+.not-supported-message p {
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+/* Test hint */
+.test-hint {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    text-align: center;
+    margin-top: calc(var(--spacing-sm) * -1);
+}
+
+/* Loading spinner for button */
+.test-notification-btn.loading {
+    pointer-events: none;
+}
+
+.btn-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--color-accent-muted);
+    border-top-color: var(--color-accent);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Mobile responsive */
+@media (max-width: 480px) {
+    .reminder-modal {
+        margin: var(--spacing-md);
+        max-width: calc(100% - var(--spacing-md) * 2);
+    }
+
+    .reminder-header {
+        padding: var(--spacing-md);
+    }
+
+    .reminder-content {
+        padding: var(--spacing-md);
+    }
+
+    .reminder-footer {
+        padding: var(--spacing-md);
+    }
 }
