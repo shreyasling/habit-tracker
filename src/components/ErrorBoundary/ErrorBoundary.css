@@ -1,0 +1,117 @@
+.error-boundary {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-bg-primary);
+    padding: var(--spacing-lg);
+}
+
+.error-content {
+    text-align: center;
+    max-width: 480px;
+}
+
+.error-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto var(--spacing-lg);
+    background: rgba(239, 68, 68, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.error-icon svg {
+    width: 40px;
+    height: 40px;
+    color: #ef4444;
+}
+
+.error-content h1 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.error-content>p {
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-xl);
+    line-height: 1.6;
+}
+
+.error-actions {
+    display: flex;
+    gap: var(--spacing-md);
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.reload-btn,
+.retry-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.reload-btn {
+    background: var(--color-accent);
+    color: white;
+    border: none;
+}
+
+.reload-btn:hover {
+    background: var(--color-accent-hover);
+    transform: translateY(-1px);
+}
+
+.reload-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+.retry-btn {
+    background: transparent;
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-border-primary);
+}
+
+.retry-btn:hover {
+    background: var(--color-bg-hover);
+    color: var(--color-text-primary);
+}
+
+.error-details {
+    margin-top: var(--spacing-xl);
+    text-align: left;
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+}
+
+.error-details summary {
+    cursor: pointer;
+    color: var(--color-text-secondary);
+    font-size: 0.875rem;
+    margin-bottom: var(--spacing-sm);
+}
+
+.error-details pre {
+    font-size: 0.75rem;
+    color: #ef4444;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin-top: var(--spacing-sm);
+    padding: var(--spacing-sm);
+    background: var(--color-bg-tertiary);
+    border-radius: var(--radius-sm);
+}

@@ -1,0 +1,300 @@
+.weekly-view-container {
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--color-border-primary);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    margin-top: var(--spacing-lg);
+}
+
+.weekly-header {
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--color-border-primary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.weekly-header h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
+.week-navigation {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    background: var(--color-bg-tertiary);
+    padding: 4px;
+    border-radius: var(--radius-full);
+}
+
+.week-range {
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+    padding: 0 var(--spacing-xs);
+    font-weight: 500;
+}
+
+.nav-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: transparent;
+    border-radius: 50%;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.nav-btn:hover {
+    background: var(--color-bg-primary);
+    color: var(--color-text-primary);
+}
+
+.nav-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.weekly-grid {
+    display: flex;
+    flex-direction: column;
+}
+
+.grid-header-row {
+    display: grid;
+    grid-template-columns: 200px repeat(7, 1fr);
+    border-bottom: 1px solid var(--color-border-primary);
+    background: var(--color-bg-tertiary);
+}
+
+.task-column-header {
+    padding: var(--spacing-md);
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    display: flex;
+    align-items: center;
+}
+
+.day-column-header {
+    padding: var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-left: 1px solid var(--color-border-primary);
+    gap: 4px;
+}
+
+.day-column-header.today {
+    background: rgba(34, 197, 94, 0.05);
+}
+
+.day-column-header.today .day-number {
+    background: var(--color-accent);
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.day-name {
+    font-size: 0.8rem;
+    color: var(--color-text-tertiary);
+    text-transform: uppercase;
+}
+
+.day-number {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
+.grid-task-row {
+    display: grid;
+    grid-template-columns: 200px repeat(7, 1fr);
+    border-bottom: 1px solid var(--color-border-secondary);
+}
+
+.grid-task-row:last-child {
+    border-bottom: none;
+}
+
+.grid-task-row:hover {
+    background: var(--color-bg-hover);
+}
+
+.task-name-cell {
+    padding: var(--spacing-md);
+    display: flex;
+    align-items: center;
+    color: var(--color-text-primary);
+    font-weight: 500;
+    overflow: hidden;
+}
+
+.task-name-cell span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+}
+
+.task-check-cell {
+    border-left: 1px solid var(--color-border-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-md);
+}
+
+.checkbox-wrapper {
+    position: relative;
+    cursor: pointer;
+    display: block;
+}
+
+.checkbox-input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.checkbox-custom {
+    display: block;
+    width: 28px;
+    height: 28px;
+    border: 2px solid var(--color-border-hover);
+    border-radius: var(--radius-sm);
+    background-color: var(--color-bg-elevated);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.checkbox-wrapper:hover .checkbox-input:not(:checked)~.checkbox-custom {
+    border-color: var(--color-accent-muted);
+    background-color: var(--color-bg-hover);
+}
+
+.checkbox-custom.checked {
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
+    box-shadow: 0 2px 8px rgba(34, 197, 94, 0.4);
+}
+
+.checkbox-custom svg {
+    width: 16px;
+    height: 16px;
+    color: white;
+    stroke-width: 3;
+    animation: checkmark 0.2s ease-in-out forwards;
+}
+
+@keyframes checkmark {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    50% {
+        transform: scale(1.2);
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.empty-week-state {
+    padding: var(--spacing-xl);
+    text-align: center;
+    color: var(--color-text-tertiary);
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+
+    /* Remove scroll from main container */
+    .weekly-view-container {
+        overflow: hidden;
+    }
+
+    /* Add scroll to grid wrapper */
+    .weekly-grid-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        /* Ensure specific width logic only applies to grid content */
+        padding-bottom: 2px;
+        /* Fix for scrollbar hiding content */
+    }
+
+    .weekly-grid {
+        min-width: 600px;
+        /* Force wider setup to ensure columns don't squash */
+    }
+
+    .grid-header-row,
+    .grid-task-row {
+        grid-template-columns: 140px repeat(7, 1fr);
+        /* Slightly wider task column */
+    }
+
+    /* Fixed Task Name Column */
+    .task-name-cell {
+        font-size: 0.85rem;
+        padding: var(--spacing-sm);
+        position: sticky;
+        left: 0;
+        background: var(--color-bg-secondary);
+        z-index: 10;
+        border-right: 1px solid var(--color-border-secondary);
+        /* Add shadow to indicate scroll */
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Sticky Task Header */
+    .grid-header-row .task-column-header {
+        position: sticky;
+        left: 0;
+        background: var(--color-bg-tertiary);
+        z-index: 20;
+        border-right: 1px solid var(--color-border-primary);
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+    }
+
+    .day-column-header {
+        padding: var(--spacing-xs);
+    }
+
+    .day-name {
+        font-size: 0.65rem;
+    }
+
+    .day-number {
+        font-size: 0.9rem;
+    }
+
+    .checkbox-custom {
+        width: 22px;
+        height: 22px;
+    }
+
+    /* Reduce padding on mobile cells to fit better */
+    .task-check-cell {
+        padding: var(--spacing-xs);
+    }
+}

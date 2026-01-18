@@ -1,0 +1,752 @@
+.month-setup-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1002;
+    padding: var(--spacing-md);
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.month-setup-modal {
+    width: 100%;
+    max-width: 520px;
+    max-height: 85vh;
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border-primary);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.month-setup-header {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg);
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+    border-bottom: 1px solid var(--color-border-primary);
+}
+
+.month-setup-icon {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, var(--color-accent) 0%, #16a34a 100%);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: var(--shadow-glow);
+}
+
+.month-setup-icon svg {
+    width: 24px;
+    height: 24px;
+    color: white;
+}
+
+.month-setup-title {
+    flex: 1;
+}
+
+.month-setup-title h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin-bottom: 2px;
+}
+
+.month-setup-title p {
+    font-size: 0.8125rem;
+    color: var(--color-text-tertiary);
+}
+
+.month-setup-header .close-btn {
+    width: 32px;
+    height: 32px;
+    background: var(--color-bg-hover);
+    border: none;
+    border-radius: var(--radius-sm);
+    color: var(--color-text-tertiary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+}
+
+.month-setup-header .close-btn:hover {
+    background: var(--color-bg-elevated);
+    color: var(--color-text-primary);
+}
+
+.month-setup-header .close-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.month-setup-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--spacing-lg);
+}
+
+/* Setup Steps */
+.setup-step {
+    animation: fadeIn 0.2s ease-out;
+}
+
+.step-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.step-header h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
+.back-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    background: transparent;
+    border: none;
+    color: var(--color-text-tertiary);
+    font-size: 0.8125rem;
+    cursor: pointer;
+    padding: var(--spacing-xs);
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-fast);
+}
+
+.back-btn:hover {
+    color: var(--color-text-primary);
+    background: var(--color-bg-hover);
+}
+
+.back-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* Choose Step */
+.step-info {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    background: var(--color-bg-tertiary);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.info-icon {
+    width: 36px;
+    height: 36px;
+    background: rgba(59, 130, 246, 0.2);
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.info-icon svg {
+    width: 18px;
+    height: 18px;
+    color: #3b82f6;
+}
+
+.step-info p {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+}
+
+.choice-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.choice-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-radius: var(--radius-md);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.choice-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+.choice-btn.reuse {
+    background: linear-gradient(135deg, var(--color-accent) 0%, #16a34a 100%);
+    border: none;
+    color: white;
+}
+
+.choice-btn.reuse:hover {
+    transform: scale(1.02);
+    box-shadow: var(--shadow-glow);
+}
+
+.choice-btn.new {
+    background: transparent;
+    border: 1px solid var(--color-border-secondary);
+    color: var(--color-text-secondary);
+}
+
+.choice-btn.new:hover {
+    background: var(--color-bg-hover);
+    border-color: var(--color-border-hover);
+    color: var(--color-text-primary);
+}
+
+/* Tasks List */
+.tasks-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    margin-bottom: var(--spacing-lg);
+    max-height: 200px;
+    overflow-y: auto;
+    padding: var(--spacing-sm);
+    background: var(--color-bg-tertiary);
+    border-radius: var(--radius-md);
+}
+
+.task-checkbox {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background var(--transition-fast);
+}
+
+.task-checkbox:hover {
+    background: var(--color-bg-hover);
+}
+
+.task-checkbox input {
+    display: none;
+}
+
+.task-checkbox .checkbox-custom {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--color-border-secondary);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+    flex-shrink: 0;
+}
+
+.task-checkbox input:checked+.checkbox-custom {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+}
+
+.task-checkbox input:checked+.checkbox-custom::after {
+    content: '';
+    width: 10px;
+    height: 10px;
+    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E") no-repeat center;
+    background-size: contain;
+}
+
+.task-checkbox .task-name {
+    font-size: 0.875rem;
+    color: var(--color-text-primary);
+}
+
+.task-checkbox.select-all {
+    border-bottom: 1px solid var(--color-border-primary);
+    padding-bottom: var(--spacing-sm);
+    margin-bottom: var(--spacing-xs);
+}
+
+.task-checkbox.select-all .task-name {
+    font-weight: 500;
+    color: var(--color-text-secondary);
+}
+
+.continue-btn {
+    width: 100%;
+    padding: var(--spacing-md);
+    background: linear-gradient(135deg, var(--color-accent) 0%, #16a34a 100%);
+    border: none;
+    border-radius: var(--radius-md);
+    color: white;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.continue-btn:hover:not(:disabled) {
+    transform: scale(1.02);
+    box-shadow: var(--shadow-glow);
+}
+
+.continue-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Current Tasks */
+.current-tasks {
+    margin-bottom: var(--spacing-lg);
+}
+
+.current-tasks h4 {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.tasks-list.editable {
+    max-height: 180px;
+}
+
+.task-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm);
+    background: var(--color-bg-elevated);
+    border-radius: var(--radius-sm);
+    margin-bottom: var(--spacing-xs);
+}
+
+.task-item .task-name {
+    flex: 1;
+    font-size: 0.875rem;
+    color: var(--color-text-primary);
+}
+
+.task-item .task-days {
+    font-size: 0.75rem;
+    color: var(--color-text-tertiary);
+    background: var(--color-bg-hover);
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+}
+
+.task-item-actions {
+    display: flex;
+    gap: var(--spacing-xs);
+}
+
+.task-item-actions button {
+    width: 28px;
+    height: 28px;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-sm);
+    color: var(--color-text-tertiary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+}
+
+.task-item-actions button svg {
+    width: 14px;
+    height: 14px;
+}
+
+.edit-days-btn:hover {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+}
+
+.remove-btn:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+/* Add Task Section */
+.add-task-section {
+    padding: var(--spacing-md);
+    background: var(--color-bg-tertiary);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.add-task-section h4 {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.add-task-form {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+}
+
+.add-task-form input {
+    flex: 1;
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border-primary);
+    border-radius: var(--radius-md);
+    color: var(--color-text-primary);
+    font-size: 0.875rem;
+}
+
+.add-task-form input:focus {
+    outline: none;
+    border-color: var(--color-accent);
+}
+
+.add-task-form input::placeholder {
+    color: var(--color-text-muted);
+}
+
+.add-btn {
+    width: 40px;
+    height: 40px;
+    background: var(--color-accent);
+    border: none;
+    border-radius: var(--radius-md);
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+}
+
+.add-btn:hover:not(:disabled) {
+    background: var(--color-accent-hover);
+    transform: scale(1.05);
+}
+
+.add-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.add-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* Days Option */
+.days-option {
+    margin-top: var(--spacing-sm);
+}
+
+.days-toggle {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: 0.8125rem;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+}
+
+.days-toggle input {
+    display: none;
+}
+
+.toggle-slider {
+    width: 36px;
+    height: 20px;
+    background: var(--color-bg-hover);
+    border-radius: var(--radius-full);
+    position: relative;
+    transition: background var(--transition-fast);
+}
+
+.toggle-slider::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    background: white;
+    border-radius: 50%;
+    transition: transform var(--transition-fast);
+}
+
+.days-toggle input:checked+.toggle-slider {
+    background: var(--color-accent);
+}
+
+.days-toggle input:checked+.toggle-slider::after {
+    transform: translateX(16px);
+}
+
+.days-grid-mini {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin-top: var(--spacing-sm);
+    padding: var(--spacing-sm);
+    background: var(--color-bg-elevated);
+    border-radius: var(--radius-sm);
+}
+
+.day-btn {
+    width: 100%;
+    aspect-ratio: 1;
+    background: var(--color-bg-tertiary);
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    color: var(--color-text-secondary);
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.day-btn:hover {
+    background: var(--color-bg-hover);
+    border-color: var(--color-border-secondary);
+}
+
+.day-btn.selected {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    color: white;
+}
+
+/* Step Actions */
+.step-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+    justify-content: flex-end;
+}
+
+.skip-btn {
+    padding: var(--spacing-sm) var(--spacing-lg);
+    background: transparent;
+    border: 1px solid var(--color-border-secondary);
+    border-radius: var(--radius-md);
+    color: var(--color-text-secondary);
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.skip-btn:hover {
+    background: var(--color-bg-hover);
+    border-color: var(--color-border-hover);
+}
+
+.complete-btn {
+    padding: var(--spacing-sm) var(--spacing-lg);
+    background: linear-gradient(135deg, var(--color-accent) 0%, #16a34a 100%);
+    border: none;
+    border-radius: var(--radius-md);
+    color: white;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.complete-btn:hover:not(:disabled) {
+    transform: scale(1.02);
+    box-shadow: var(--shadow-glow);
+}
+
+.complete-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Select Days Step */
+.days-selection {
+    text-align: center;
+}
+
+.select-all-days-btn {
+    padding: var(--spacing-xs) var(--spacing-md);
+    background: var(--color-bg-tertiary);
+    border: 1px solid var(--color-border-secondary);
+    border-radius: var(--radius-md);
+    color: var(--color-text-secondary);
+    font-size: 0.8125rem;
+    cursor: pointer;
+    margin-bottom: var(--spacing-md);
+    transition: all var(--transition-fast);
+}
+
+.select-all-days-btn:hover {
+    background: var(--color-bg-hover);
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+}
+
+.days-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: var(--spacing-xs);
+    padding: var(--spacing-md);
+    background: var(--color-bg-tertiary);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-md);
+}
+
+.days-grid .day-btn {
+    padding: var(--spacing-sm);
+    font-size: 0.875rem;
+}
+
+.days-count {
+    font-size: 0.8125rem;
+    color: var(--color-text-tertiary);
+    margin-bottom: var(--spacing-lg);
+}
+
+.save-days-btn {
+    width: 100%;
+    padding: var(--spacing-md);
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    border: none;
+    border-radius: var(--radius-md);
+    color: white;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.save-days-btn:hover:not(:disabled) {
+    transform: scale(1.02);
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+}
+
+.save-days-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Light Theme */
+[data-theme="light"] .month-setup-modal {
+    background: white;
+}
+
+[data-theme="light"] .month-setup-header {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.08) 0%, rgba(59, 130, 246, 0.08) 100%);
+}
+
+[data-theme="light"] .add-task-form input {
+    background: #f8fafc;
+}
+
+/* Mobile Styles */
+@media (max-width: 480px) {
+    .month-setup-overlay {
+        padding: var(--spacing-sm);
+        align-items: flex-end;
+    }
+
+    .month-setup-modal {
+        max-height: 90vh;
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    }
+
+    .month-setup-header {
+        padding: var(--spacing-md);
+    }
+
+    .month-setup-icon {
+        width: 40px;
+        height: 40px;
+    }
+
+    .month-setup-icon svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    .month-setup-title h2 {
+        font-size: 1.125rem;
+    }
+
+    .month-setup-content {
+        padding: var(--spacing-md);
+    }
+
+    .choice-buttons {
+        gap: var(--spacing-xs);
+    }
+
+    .choice-btn {
+        padding: var(--spacing-sm) var(--spacing-md);
+        font-size: 0.875rem;
+    }
+
+    .step-actions {
+        flex-direction: column;
+    }
+
+    .skip-btn,
+    .complete-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .days-grid {
+        grid-template-columns: repeat(7, 1fr);
+        gap: 2px;
+    }
+
+    .days-grid .day-btn {
+        padding: var(--spacing-xs);
+        font-size: 0.75rem;
+    }
+}
