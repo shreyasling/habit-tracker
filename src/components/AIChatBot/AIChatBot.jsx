@@ -20,6 +20,18 @@ function AIChatBot({ context, tasks, year, month, onToggleCompletion }) {
         scrollToBottom();
     }, [messages, pendingAction]);
 
+    // Lock body scroll when chat is open on mobile
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [isOpen]);
+
     const handleConfirmAction = () => {
         if (pendingAction && onToggleCompletion) {
             if (pendingAction.allTasks) {
@@ -151,6 +163,16 @@ function AIChatBot({ context, tasks, year, month, onToggleCompletion }) {
                             <span className="chat-status">Powered by Gemini</span>
                         </div>
                     </div>
+                    <button
+                        className="chat-close-btn"
+                        onClick={() => setIsOpen(false)}
+                        aria-label="Close chat"
+                    >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <line x1="18" y1="6" x2="6" y2="18" />
+                            <line x1="6" y1="6" x2="18" y2="18" />
+                        </svg>
+                    </button>
                 </div>
 
                 <div className="chat-messages">

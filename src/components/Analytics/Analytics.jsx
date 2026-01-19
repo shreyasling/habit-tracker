@@ -94,7 +94,7 @@ function Analytics({ year, month, tasks, completionData, selectedDay, onDayClick
                     <StatCard title="Monthly Progress" value={`${monthlyStats.percentage}%`} subtitle={`${monthlyStats.completedCells} of ${monthlyStats.totalCells} tasks`} icon="chart" accent />
                     <StatCard title="Current Streak" value={`${monthlyStats.streak}`} subtitle="consecutive days" icon="fire" />
                     <StatCard title="Tasks" value={tasks.length} subtitle={`tracking ${days.length} days`} icon="list" />
-                    <StatCard title="Today" value={dailyData.find(d => d.isToday)?.percentage || 0} subtitle="% complete" icon="today" />
+                    <StatCard title="Today" value={`${dailyData.find(d => d.isToday)?.percentage || 0}%`} subtitle="complete" icon="today" />
                 </div>
 
                 {/* Daily Bar Chart */}

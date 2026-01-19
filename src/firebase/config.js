@@ -21,4 +21,7 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const googleProvider = new GoogleAuthProvider();
 
+// Export app for messaging
+export { app };
 export default app;
+

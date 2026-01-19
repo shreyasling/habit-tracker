@@ -1,0 +1,506 @@
+.task-reminder-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.task-reminder-modal {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border-primary);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+    width: 90%;
+    max-width: 420px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    animation: scaleIn 0.2s ease-out;
+}
+
+.task-reminder-header {
+    background: var(--color-bg-tertiary);
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--color-border-primary);
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.task-reminder-header .header-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--color-accent) 0%, #16a34a 100%);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.task-reminder-header .header-icon svg {
+    width: 22px;
+    height: 22px;
+    color: white;
+}
+
+.task-reminder-header h3 {
+    flex: 1;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
+.task-reminder-header .close-btn {
+    width: 32px;
+    height: 32px;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-sm);
+    color: var(--color-text-tertiary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+}
+
+.task-reminder-header .close-btn:hover {
+    background: var(--color-bg-hover);
+    color: var(--color-text-primary);
+}
+
+.task-reminder-header .close-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+.task-reminder-content {
+    padding: var(--spacing-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+}
+
+/* Permission Status */
+.permission-status {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    border-radius: var(--radius-md);
+    font-size: 0.85rem;
+    color: #f59e0b;
+}
+
+.permission-status.granted {
+    background: rgba(34, 197, 94, 0.1);
+    border-color: rgba(34, 197, 94, 0.3);
+    color: var(--color-accent);
+}
+
+.permission-status .status-icon {
+    font-size: 1rem;
+}
+
+.permission-status .enable-btn {
+    margin-left: auto;
+    padding: 4px 12px;
+    background: #f59e0b;
+    border: none;
+    border-radius: var(--radius-sm);
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.permission-status .enable-btn:hover:not(:disabled) {
+    background: #d97706;
+}
+
+.reminder-description {
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.reminder-note {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: var(--radius-md);
+    font-size: 0.8rem;
+    color: #3b82f6;
+    line-height: 1.4;
+}
+
+.reminder-note.success {
+    background: rgba(34, 197, 94, 0.1);
+    border-color: rgba(34, 197, 94, 0.3);
+    color: var(--color-accent);
+}
+
+.reminder-note .note-icon {
+    flex-shrink: 0;
+}
+
+/* FCM Status */
+.fcm-status {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: rgba(139, 92, 246, 0.1);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    border-radius: var(--radius-md);
+    font-size: 0.85rem;
+    color: #8b5cf6;
+}
+
+.fcm-status.enabled {
+    background: rgba(34, 197, 94, 0.1);
+    border-color: rgba(34, 197, 94, 0.3);
+    color: var(--color-accent);
+}
+
+.fcm-status .status-icon {
+    font-size: 1rem;
+}
+
+.fcm-status .enable-btn {
+    margin-left: auto;
+    padding: 4px 12px;
+    background: #8b5cf6;
+    border: none;
+    border-radius: var(--radius-sm);
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.fcm-status .enable-btn:hover:not(:disabled) {
+    background: #7c3aed;
+}
+
+/* Form Groups */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.form-group label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+}
+
+.task-select,
+.time-input {
+    padding: var(--spacing-md);
+    background: var(--color-bg-tertiary);
+    border: 1px solid var(--color-border-secondary);
+    border-radius: var(--radius-md);
+    color: var(--color-text-primary);
+    font-family: inherit;
+    font-size: 1rem;
+    transition: all var(--transition-fast);
+}
+
+.task-select:focus,
+.time-input:focus {
+    outline: none;
+    border-color: var(--color-accent);
+}
+
+/* Selected Task Reminder Section */
+.selected-task-reminder {
+    background: var(--color-bg-tertiary);
+    border: 1px solid var(--color-border-secondary);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+}
+
+.current-reminder-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.reminder-info-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-md);
+}
+
+.reminder-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.reminder-label {
+    font-size: 0.8rem;
+    color: var(--color-text-tertiary);
+}
+
+.reminder-time-display {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--color-accent);
+}
+
+.reminder-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+/* Toggle Button */
+.toggle-btn {
+    width: 44px;
+    height: 24px;
+    background: var(--color-bg-elevated);
+    border: 2px solid var(--color-border-secondary);
+    border-radius: 20px;
+    cursor: pointer;
+    position: relative;
+    transition: all var(--transition-fast);
+}
+
+.toggle-btn.active {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+}
+
+.toggle-btn .toggle-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    background: var(--color-text-tertiary);
+    border-radius: 50%;
+    transition: all var(--transition-fast);
+}
+
+.toggle-btn.active .toggle-thumb {
+    background: white;
+    left: calc(100% - 18px);
+}
+
+/* Remove Button */
+.remove-btn {
+    width: 36px;
+    height: 36px;
+    background: transparent;
+    border: 1px solid var(--color-border-secondary);
+    border-radius: var(--radius-sm);
+    color: var(--color-text-tertiary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+}
+
+.remove-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.remove-btn:hover {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: #ef4444;
+    color: #ef4444;
+}
+
+/* Test Notification Button */
+.test-notification-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--color-accent-muted);
+    border: none;
+    border-radius: var(--radius-md);
+    color: var(--color-accent);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.test-notification-btn:hover:not(:disabled) {
+    background: var(--color-bg-hover);
+}
+
+.test-notification-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.test-notification-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* Set Reminder Section */
+.set-reminder-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.set-reminder-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md);
+    background: var(--color-accent);
+    border: none;
+    border-radius: var(--radius-md);
+    color: white;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.set-reminder-btn:hover:not(:disabled) {
+    background: var(--color-accent-hover);
+}
+
+.set-reminder-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.set-reminder-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* Footer */
+.task-reminder-footer {
+    padding: var(--spacing-lg);
+    background: var(--color-bg-tertiary);
+    border-top: 1px solid var(--color-border-primary);
+    display: flex;
+    justify-content: flex-end;
+}
+
+.done-btn {
+    padding: var(--spacing-sm) var(--spacing-xl);
+    background: var(--color-accent);
+    border: none;
+    color: white;
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.done-btn:hover {
+    background: var(--color-accent-hover);
+}
+
+/* Not Supported Message */
+.not-supported-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-xl);
+    color: var(--color-text-tertiary);
+}
+
+.not-supported-message svg {
+    width: 48px;
+    height: 48px;
+    color: var(--color-warning);
+}
+
+.not-supported-message p {
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Mobile Responsive */
+@media (max-width: 480px) {
+    .task-reminder-overlay {
+        align-items: flex-end;
+    }
+
+    .task-reminder-modal {
+        width: 100%;
+        max-width: 100%;
+        max-height: 80vh;
+        border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    }
+
+    .task-reminder-header {
+        border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    }
+}
+
+/* Light Theme */
+[data-theme="light"] .task-reminder-modal {
+    background: #ffffff;
+    border-color: #e2e8f0;
+}
+
+[data-theme="light"] .task-reminder-header,
+[data-theme="light"] .task-reminder-footer {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+}
+
+[data-theme="light"] .selected-task-reminder {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+}

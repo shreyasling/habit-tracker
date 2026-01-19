@@ -3,15 +3,17 @@ import { createPortal } from 'react-dom';
 import { getMonthName, getPreviousMonth, getNextMonth, getCurrentDate } from '../../utils/dateUtils';
 import { getMotivationalQuote } from '../../services/geminiService';
 import ReminderModal from '../Reminders/ReminderModal';
+import TaskReminderModal from '../Reminders/TaskReminderModal';
 import './Header.css';
 
-function Header({ year, month, onMonthChange, onAnalyzeClick, user, onLogout }) {
+function Header({ year, month, onMonthChange, onAnalyzeClick, user, onLogout, tasks = [] }) {
     const currentDate = getCurrentDate();
     const isCurrentMonth = year === currentDate.year && month === currentDate.month;
     const [quote, setQuote] = useState('"The secret of getting ahead is getting started." - Mark Twain');
     const [isLoadingQuote, setIsLoadingQuote] = useState(false);
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
     const [showReminders, setShowReminders] = useState(false);
+    const [showTaskReminders, setShowTaskReminders] = useState(false);
     const [theme, setTheme] = useState(() => {
         return localStorage.getItem('theme') || 'dark';
     });
@@ -79,12 +81,26 @@ function Header({ year, month, onMonthChange, onAnalyzeClick, user, onLogout }) 
                     <div className="header-actions">
                         <button
                             className="icon-btn"
-                            onClick={() => setShowReminders(true)}
-                            title="Daily Reminders"
+                            onClick={() => setShowTaskReminders(true)}
+                            title="Task Reminders"
                         >
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
                                 <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                                <circle cx="18" cy="5" r="3" fill="var(--color-accent)" stroke="none" />
+                            </svg>
+                        </button>
+
+                        <button
+                            className="icon-btn"
+                            onClick={() => setShowReminders(true)}
+                            title="Daily Reminders"
+                        >
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                <line x1="16" y1="2" x2="16" y2="6" />
+                                <line x1="8" y1="2" x2="8" y2="6" />
+                                <line x1="3" y1="10" x2="21" y2="10" />
                             </svg>
                         </button>
 
@@ -239,6 +255,13 @@ function Header({ year, month, onMonthChange, onAnalyzeClick, user, onLogout }) 
             <ReminderModal
                 isOpen={showReminders}
                 onClose={() => setShowReminders(false)}
+            />
+
+            <TaskReminderModal
+                isOpen={showTaskReminders}
+                onClose={() => setShowTaskReminders(false)}
+                tasks={tasks}
+                userId={user?.uid}
             />
         </header>
     );

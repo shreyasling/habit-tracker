@@ -165,3 +165,114 @@ export const checkAndShowScheduledNotification = () => {
 
 // Get the service worker registration (for external use)
 export const getServiceWorkerRegistration = () => swRegistration;
+
+// ===== TASK-BASED REMINDERS =====
+
+// Convert time string (HH:MM) to minutes since midnight
+const timeToMinutes = (timeStr) => {
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    return hours * 60 + minutes;
+};
+
+// Check and fire task-based reminders
+export const checkTaskReminders = (tasks = []) => {
+    const taskReminders = JSON.parse(localStorage.getItem('taskReminders') || '{}');
+    const firedReminders = JSON.parse(localStorage.getItem('firedReminders') || '{}');
+    const today = new Date().toDateString();
+
+    // Reset fired reminders if it's a new day
+    if (firedReminders.date !== today) {
+        console.log('[Reminder] New day, resetting fired reminders');
+        localStorage.setItem('firedReminders', JSON.stringify({ date: today, ids: [] }));
+    }
+
+    const currentFired = firedReminders.date === today ? (firedReminders.ids || []) : [];
+    const now = new Date();
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+    const currentTimeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+    console.log(`[Reminder] Checking reminders at ${currentTimeStr} (${currentMinutes} mins)`);
+
+    Object.entries(taskReminders).forEach(([taskId, reminders]) => {
+        const task = tasks.find(t => t.id === taskId);
+
+        reminders.forEach(reminder => {
+            if (!reminder.enabled) return;
+            if (currentFired.includes(reminder.id)) return;
+
+            const reminderMinutes = timeToMinutes(reminder.time);
+
+            // Check if current time matches reminder time (within 1 minute window)
+            // This handles the case where the check might run slightly after the exact minute
+            if (currentMinutes >= reminderMinutes && currentMinutes <= reminderMinutes + 1) {
+                const taskName = task ? task.name : 'Unknown Task';
+                console.log(`[Reminder] Firing reminder for "${taskName}" at ${reminder.time}`);
+
+                showNotification(
+                    `🔔 ${taskName}`,
+                    `Time to complete your task!`,
+                    { tag: `task-reminder-${reminder.id}` }
+                );
+
+                // Mark as fired
+                const updatedFired = {
+                    date: today,
+                    ids: [...currentFired, reminder.id]
+                };
+                localStorage.setItem('firedReminders', JSON.stringify(updatedFired));
+                currentFired.push(reminder.id); // Update local reference too
+            }
+        });
+    });
+};
+
+// Start the reminder scheduler (call this on app startup)
+let reminderInterval = null;
+
+export const startReminderScheduler = (tasks = []) => {
+    // Clear any existing interval
+    if (reminderInterval) {
+        clearInterval(reminderInterval);
+    }
+
+    console.log('[Reminder] Starting reminder scheduler');
+
+    // Check immediately
+    const currentTasks = JSON.parse(localStorage.getItem('currentTasks') || '[]');
+    checkTaskReminders(currentTasks.length > 0 ? currentTasks : tasks);
+
+    // Check every 30 seconds for better accuracy
+    reminderInterval = setInterval(() => {
+        const latestTasks = JSON.parse(localStorage.getItem('currentTasks') || '[]');
+        checkTaskReminders(latestTasks.length > 0 ? latestTasks : tasks);
+    }, 30000); // Check every 30 seconds
+
+    return () => {
+        if (reminderInterval) {
+            clearInterval(reminderInterval);
+        }
+    };
+};
+
+// Update tasks in localStorage for the scheduler to use
+export const updateSchedulerTasks = (tasks) => {
+    localStorage.setItem('currentTasks', JSON.stringify(tasks));
+};
+
+// Stop the reminder scheduler
+export const stopReminderScheduler = () => {
+    if (reminderInterval) {
+        clearInterval(reminderInterval);
+        reminderInterval = null;
+        console.log('[Reminder] Stopped reminder scheduler');
+    }
+};
+
+// Force check reminders now (useful for testing)
+export const forceCheckReminders = () => {
+    const tasks = JSON.parse(localStorage.getItem('currentTasks') || '[]');
+    console.log('[Reminder] Force checking reminders with', tasks.length, 'tasks');
+    checkTaskReminders(tasks);
+};
+
+

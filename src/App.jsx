@@ -58,6 +58,13 @@ function App() {
     return monthTasks;
   }, [monthlyTasks, monthKey]);
 
+  // Update scheduler tasks when tasks change
+  useEffect(() => {
+    if (tasks.length > 0) {
+      localStorage.setItem('currentTasks', JSON.stringify(tasks));
+    }
+  }, [tasks]);
+
   // Previous month's tasks for reuse
   const previousMonthTasks = useMemo(() => {
     return monthlyTasks[previousMonthKey] || [];
@@ -438,6 +445,7 @@ function App() {
         onAnalyzeClick={() => setShowAnalysis(true)}
         user={user}
         onLogout={handleLogout}
+        tasks={tasks}
       />
 
       <main className="main-content">
