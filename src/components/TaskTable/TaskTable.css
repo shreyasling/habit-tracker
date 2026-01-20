@@ -148,9 +148,11 @@
 }
 
 .task-table {
-    width: 100%;
+    width: auto;
+    min-width: 100%;
     border-collapse: separate;
     border-spacing: 0;
+    table-layout: fixed;
 }
 
 .task-table th,
@@ -174,6 +176,7 @@
     position: sticky;
     left: 0;
     z-index: 20;
+    width: 180px;
     min-width: 180px;
     max-width: 220px;
     background: var(--color-bg-tertiary);
@@ -187,6 +190,7 @@
 }
 
 .day-header {
+    width: 50px;
     min-width: 50px;
     padding: var(--spacing-sm) var(--spacing-xs) !important;
     background: var(--color-bg-tertiary);
@@ -247,11 +251,12 @@
     transition: width var(--transition-slow);
 }
 
-.task-row {
+.task-table .task-row {
+    display: table-row;
     transition: background var(--transition-fast);
 }
 
-.task-row:hover {
+.task-table .task-row:hover {
     background: var(--color-bg-tertiary);
 }
 
@@ -259,6 +264,7 @@
     position: sticky;
     left: 0;
     z-index: 10;
+    width: 180px;
     min-width: 180px;
     max-width: 220px;
     background: var(--color-bg-secondary);
@@ -267,7 +273,7 @@
     transition: background var(--transition-fast);
 }
 
-.task-row:hover .task-name-cell {
+.task-table .task-row:hover .task-name-cell {
     background: var(--color-bg-tertiary);
 }
 
@@ -300,7 +306,7 @@
     /* Prevent icons from shrinking */
 }
 
-.task-row:hover .task-actions {
+.task-table .task-row:hover .task-actions {
     opacity: 1;
 }
 
@@ -358,11 +364,11 @@
     background: rgba(34, 197, 94, 0.05);
 }
 
-.task-row:hover .checkbox-cell {
+.task-table .task-row:hover .checkbox-cell {
     background: var(--color-bg-tertiary);
 }
 
-.task-row:hover .checkbox-cell.today {
+.task-table .task-row:hover .checkbox-cell.today {
     background: rgba(34, 197, 94, 0.1);
 }
 
@@ -371,7 +377,7 @@
     background: var(--color-bg-tertiary);
 }
 
-.task-row:hover .checkbox-cell.not-applicable {
+.task-table .task-row:hover .checkbox-cell.not-applicable {
     background: var(--color-bg-hover);
 }
 

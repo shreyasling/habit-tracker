@@ -6,7 +6,7 @@ import ReminderModal from '../Reminders/ReminderModal';
 import TaskReminderModal from '../Reminders/TaskReminderModal';
 import './Header.css';
 
-function Header({ year, month, onMonthChange, onAnalyzeClick, user, onLogout, tasks = [] }) {
+function Header({ year, month, onMonthChange, onAnalyzeClick, user, onLogout, tasks = [], showHomeButton = false, onHomeClick }) {
     const currentDate = getCurrentDate();
     const isCurrentMonth = year === currentDate.year && month === currentDate.month;
     const [quote, setQuote] = useState('"The secret of getting ahead is getting started." - Mark Twain');
@@ -79,6 +79,19 @@ function Header({ year, month, onMonthChange, onAnalyzeClick, user, onLogout, ta
                     </div>
 
                     <div className="header-actions">
+                        {showHomeButton && (
+                            <button
+                                className="icon-btn home-btn"
+                                onClick={onHomeClick}
+                                title="Back to Home"
+                            >
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                                    <polyline points="9 22 9 12 15 12 15 22" />
+                                </svg>
+                            </button>
+                        )}
+
                         <button
                             className="icon-btn"
                             onClick={() => setShowTaskReminders(true)}

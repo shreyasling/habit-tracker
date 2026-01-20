@@ -97,6 +97,7 @@ function TaskTable({
             onDeleteTask(deleteConfirm.taskId);
             toastSuccess(`"${deleteConfirm.taskName}" has been deleted.`);
         }
+        setDeleteConfirm({ open: false, taskId: null, taskName: '' });
     };
 
     const handleToggleWithLoading = async (taskId, day) => {

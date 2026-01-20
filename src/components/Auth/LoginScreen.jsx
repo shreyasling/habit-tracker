@@ -1,7 +1,7 @@
 import { signInWithGoogle } from '../../firebase/authService';
 import './Auth.css';
 
-function LoginScreen({ onLogin }) {
+function LoginScreen() {
     const handleGoogleLogin = async () => {
         try {
             await signInWithGoogle();
@@ -18,37 +18,63 @@ function LoginScreen({ onLogin }) {
                 <div className="login-header">
                     <div className="login-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                            <polyline points="22 4 12 14.01 9 11.01" />
+                            <polygon points="12 2 2 7 12 12 22 7 12 2" />
+                            <polyline points="2 17 12 22 22 17" />
+                            <polyline points="2 12 12 17 22 12" />
                         </svg>
                     </div>
-                    <h1>Productivity Tracker</h1>
-                    <p>Track your daily habits & achieve your goals</p>
+                    <h1>My Life Dashboard</h1>
+                    <p>Your all-in-one productivity & planning companion</p>
+                </div>
+
+                {/* Modules Overview */}
+                <div className="modules-preview">
+                    <div className="module-preview-item">
+                        <div className="module-icon green">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                <polyline points="22 4 12 14.01 9 11.01" />
+                            </svg>
+                        </div>
+                        <div className="module-info">
+                            <h3>Productivity Tracker</h3>
+                            <p>Track habits, build streaks, view analytics</p>
+                        </div>
+                    </div>
+
+                    <div className="module-preview-item">
+                        <div className="module-icon purple">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <circle cx="12" cy="12" r="10" />
+                                <path d="M12 6v6l4 2" />
+                            </svg>
+                        </div>
+                        <div className="module-info">
+                            <h3>Tomorrow's Plans</h3>
+                            <p>AI-powered daily planning & scheduling</p>
+                        </div>
+                    </div>
+
+                    <div className="module-preview-item coming-soon">
+                        <div className="module-icon blue">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
+                            </svg>
+                        </div>
+                        <div className="module-info">
+                            <h3>Financial Management</h3>
+                            <p>Budgets, expenses & savings goals</p>
+                            <span className="coming-badge">Coming Soon</span>
+                        </div>
+                    </div>
                 </div>
 
                 <div className="login-features">
                     <div className="feature-item">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                            <line x1="16" y1="2" x2="16" y2="6" />
-                            <line x1="8" y1="2" x2="8" y2="6" />
-                            <line x1="3" y1="10" x2="21" y2="10" />
-                        </svg>
-                        <span>Track daily habits</span>
-                    </div>
-                    <div className="feature-item">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <line x1="18" y1="20" x2="18" y2="10" />
-                            <line x1="12" y1="20" x2="12" y2="4" />
-                            <line x1="6" y1="20" x2="6" y2="14" />
-                        </svg>
-                        <span>View analytics</span>
-                    </div>
-                    <div className="feature-item">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                         </svg>
-                        <span>AI productivity coach</span>
+                        <span>AI assistant</span>
                     </div>
                     <div className="feature-item">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -57,7 +83,20 @@ function LoginScreen({ onLogin }) {
                             <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
                             <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                         </svg>
-                        <span>Sync across devices</span>
+                        <span>Cloud sync</span>
+                    </div>
+                    <div className="feature-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
+                            <line x1="12" y1="18" x2="12.01" y2="18" />
+                        </svg>
+                        <span>Mobile ready</span>
+                    </div>
+                    <div className="feature-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                        </svg>
+                        <span>Secure</span>
                     </div>
                 </div>
 

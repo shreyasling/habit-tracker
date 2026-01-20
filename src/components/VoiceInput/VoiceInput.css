@@ -1,0 +1,441 @@
+/* Voice Input Component Styles */
+.voice-input-container {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    position: relative;
+}
+
+/* Main Voice Button */
+.voice-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 50%;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Size Variants */
+.voice-btn.small {
+    width: 36px;
+    height: 36px;
+}
+
+.voice-btn.small svg {
+    width: 16px;
+    height: 16px;
+}
+
+.voice-btn.medium {
+    width: 44px;
+    height: 44px;
+}
+
+.voice-btn.medium svg {
+    width: 20px;
+    height: 20px;
+}
+
+.voice-btn.large {
+    width: 56px;
+    height: 56px;
+}
+
+.voice-btn.large svg {
+    width: 24px;
+    height: 24px;
+}
+
+/* Hover State */
+.voice-btn:hover:not(.disabled):not(.recording) {
+    background: rgba(168, 85, 247, 0.15);
+    border-color: rgba(168, 85, 247, 0.4);
+    color: #a855f7;
+    transform: scale(1.05);
+}
+
+/* Active/Focus State */
+.voice-btn:focus-visible {
+    outline: 2px solid #a855f7;
+    outline-offset: 2px;
+}
+
+/* Recording State */
+.voice-btn.recording {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    border-color: transparent;
+    color: white;
+    animation: recordingPulse 1.5s ease-in-out infinite;
+}
+
+.voice-btn.recording:hover {
+    transform: scale(1.05);
+}
+
+@keyframes recordingPulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+    }
+
+    50% {
+        box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+    }
+}
+
+/* Disabled State */
+.voice-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.voice-btn.unsupported {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Pulse Rings */
+.pulse-ring {
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    border: 2px solid rgba(239, 68, 68, 0.5);
+    opacity: 0;
+    animation: pulseExpand 1.5s ease-out infinite;
+}
+
+.pulse-ring.pulse-2 {
+    animation-delay: 0.5s;
+}
+
+@keyframes pulseExpand {
+    0% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: scale(1.6);
+        opacity: 0;
+    }
+}
+
+/* Icons */
+.mic-icon,
+.stop-icon {
+    position: relative;
+    z-index: 1;
+    transition: transform 0.2s ease;
+}
+
+.voice-btn:hover .mic-icon {
+    transform: scale(1.1);
+}
+
+/* Recording Indicator */
+.recording-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 20px;
+    animation: fadeSlideIn 0.3s ease;
+}
+
+@keyframes fadeSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Waveform Animation */
+.waveform {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    height: 24px;
+}
+
+.wave-bar {
+    width: 3px;
+    min-height: 4px;
+    background: linear-gradient(180deg, #ef4444 0%, #f87171 100%);
+    border-radius: 3px;
+    transition: height 0.1s ease;
+}
+
+/* Recording Timer */
+.recording-timer {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #ef4444;
+    font-variant-numeric: tabular-nums;
+}
+
+.recording-dot {
+    width: 8px;
+    height: 8px;
+    background: #ef4444;
+    border-radius: 50%;
+    animation: blink 1s ease-in-out infinite;
+}
+
+@keyframes blink {
+
+    0%,
+    50%,
+    100% {
+        opacity: 1;
+    }
+
+    25%,
+    75% {
+        opacity: 0.3;
+    }
+}
+
+/* Permission Badge */
+.permission-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    z-index: 5;
+}
+
+.permission-badge.denied {
+    background: #ef4444;
+}
+
+.permission-badge svg {
+    width: 10px;
+    height: 10px;
+    stroke: white;
+}
+
+/* Error Tooltip */
+.voice-error-tooltip {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 12px;
+    width: 280px;
+    background: #1f1f23;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    z-index: 100;
+    animation: tooltipAppear 0.2s ease;
+}
+
+@keyframes tooltipAppear {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+.voice-error-tooltip::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%) rotate(45deg);
+    width: 10px;
+    height: 10px;
+    background: #1f1f23;
+    border-left: 1px solid rgba(239, 68, 68, 0.3);
+    border-top: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.error-content {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.error-content strong {
+    display: block;
+    font-size: 0.9rem;
+    color: #ef4444;
+    margin-bottom: 0.5rem;
+}
+
+.error-content p {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.5;
+    margin-bottom: 0.5rem;
+}
+
+.error-content ol {
+    margin: 0.5rem 0;
+    padding-left: 1.25rem;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.error-content ol li {
+    margin-bottom: 0.25rem;
+}
+
+.retry-btn {
+    width: 100%;
+    padding: 0.6rem;
+    margin-top: 0.75rem;
+    background: rgba(168, 85, 247, 0.2);
+    border: 1px solid rgba(168, 85, 247, 0.4);
+    border-radius: 8px;
+    color: #a855f7;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.retry-btn:hover {
+    background: rgba(168, 85, 247, 0.3);
+}
+
+.close-tooltip-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 6px;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.close-tooltip-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+}
+
+/* Light Theme */
+[data-theme="light"] .voice-btn {
+    background: #f1f5f9;
+    border-color: #e2e8f0;
+    color: #475569;
+}
+
+[data-theme="light"] .voice-btn:hover:not(.disabled):not(.recording) {
+    background: rgba(168, 85, 247, 0.1);
+    border-color: #a855f7;
+    color: #7c3aed;
+}
+
+[data-theme="light"] .recording-indicator {
+    background: rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.15);
+}
+
+[data-theme="light"] .voice-error-tooltip {
+    background: white;
+    border-color: #fecaca;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .voice-error-tooltip::before {
+    background: white;
+    border-color: #fecaca;
+}
+
+[data-theme="light"] .error-content {
+    color: #1e293b;
+}
+
+[data-theme="light"] .error-content p {
+    color: #475569;
+}
+
+[data-theme="light"] .error-content ol {
+    color: #64748b;
+}
+
+/* Mobile Responsive */
+@media (max-width: 640px) {
+    .voice-error-tooltip {
+        width: 260px;
+        left: auto;
+        right: -20px;
+        transform: none;
+    }
+
+    .voice-error-tooltip::before {
+        left: auto;
+        right: 30px;
+        transform: rotate(45deg);
+    }
+
+    .recording-indicator {
+        padding: 0.4rem 0.6rem;
+    }
+
+    .waveform {
+        gap: 2px;
+    }
+
+    .wave-bar {
+        width: 2px;
+    }
+
+    .recording-timer {
+        font-size: 0.75rem;
+    }
+}
+
+/* Accessibility - Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    .voice-btn.recording {
+        animation: none;
+    }
+
+    .pulse-ring {
+        display: none;
+    }
+
+    .recording-dot {
+        animation: none;
+    }
+
+    .wave-bar {
+        transition: none;
+    }
+}

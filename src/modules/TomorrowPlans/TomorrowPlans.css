@@ -1,0 +1,594 @@
+/* Tomorrow Plans - Compact Professional UI */
+.tomorrow-plans {
+    min-height: 100vh;
+    background: var(--color-bg-primary, #0a0a0b);
+    display: flex;
+    flex-direction: column;
+}
+
+/* Compact Header */
+.tp-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--color-bg-secondary, rgba(15, 15, 17, 0.98));
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--color-border-primary, rgba(255, 255, 255, 0.08));
+    padding: 0.6rem 1rem;
+}
+
+.tp-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.tp-icon-btn {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-bg-tertiary, rgba(255, 255, 255, 0.05));
+    border: 1px solid var(--color-border-primary, rgba(255, 255, 255, 0.1));
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tp-icon-btn svg {
+    width: 16px;
+    height: 16px;
+    stroke: var(--color-text-secondary, rgba(255, 255, 255, 0.6));
+}
+
+.tp-icon-btn:hover {
+    background: rgba(168, 85, 247, 0.15);
+    border-color: rgba(168, 85, 247, 0.3);
+}
+
+.tp-icon-btn:hover svg {
+    stroke: #a855f7;
+}
+
+/* Date Navigation - Centered & Clear */
+.tp-date-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex: 1;
+    justify-content: center;
+}
+
+.tp-nav-arrow {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.tp-nav-arrow svg {
+    width: 16px;
+    height: 16px;
+    stroke: var(--color-text-tertiary, rgba(255, 255, 255, 0.4));
+}
+
+.tp-nav-arrow:hover {
+    background: var(--color-bg-tertiary, rgba(255, 255, 255, 0.08));
+}
+
+.tp-nav-arrow:hover svg {
+    stroke: var(--color-text-primary, #fff);
+}
+
+.tp-date-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.35rem 0.9rem;
+    background: var(--color-bg-tertiary, rgba(255, 255, 255, 0.05));
+    border: 1px solid var(--color-border-primary, rgba(255, 255, 255, 0.1));
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 90px;
+}
+
+.tp-date-btn:hover {
+    background: var(--color-bg-hover, rgba(255, 255, 255, 0.08));
+}
+
+.tp-date-btn.today {
+    background: rgba(168, 85, 247, 0.15);
+    border-color: rgba(168, 85, 247, 0.4);
+}
+
+.tp-date-btn .date-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-text-primary, #fff);
+}
+
+.tp-date-btn.today .date-label {
+    color: #a855f7;
+}
+
+.tp-date-btn .date-full {
+    font-size: 0.65rem;
+    color: var(--color-text-tertiary, rgba(255, 255, 255, 0.4));
+    margin-top: 1px;
+}
+
+.tp-go-today {
+    padding: 0.3rem 0.6rem;
+    background: transparent;
+    border: 1px solid rgba(168, 85, 247, 0.3);
+    border-radius: 4px;
+    color: #a855f7;
+    font-size: 0.7rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-left: 0.25rem;
+}
+
+.tp-go-today:hover {
+    background: rgba(168, 85, 247, 0.15);
+}
+
+.tp-header-actions {
+    display: flex;
+    gap: 0.4rem;
+}
+
+/* Stats Bar - Compact with all statuses */
+.tp-stats-bar {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 0.6rem;
+    padding-top: 0.6rem;
+    border-top: 1px solid var(--color-border-primary, rgba(255, 255, 255, 0.06));
+}
+
+.tp-stat {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.2rem 0.5rem;
+    background: var(--color-bg-tertiary, rgba(255, 255, 255, 0.03));
+    border-radius: 6px;
+}
+
+.tp-stat .stat-value {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-text-primary, rgba(255, 255, 255, 0.9));
+}
+
+.tp-stat .stat-label {
+    font-size: 0.65rem;
+    color: var(--color-text-tertiary, rgba(255, 255, 255, 0.45));
+    text-transform: uppercase;
+}
+
+.tp-stat.completed .stat-value {
+    color: #22c55e;
+}
+
+.tp-stat.partial .stat-value {
+    color: #f59e0b;
+}
+
+.tp-stat.tried .stat-value {
+    color: #ef4444;
+}
+
+.tp-stat.pending .stat-value {
+    color: #6b7280;
+}
+
+/* Main Content - Less padding */
+.tp-main {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    overflow-y: auto;
+}
+
+/* Loading */
+.tp-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    gap: 0.75rem;
+}
+
+.tp-loading .loading-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--color-border-secondary, rgba(255, 255, 255, 0.1));
+    border-top-color: #a855f7;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.tp-loading p {
+    color: var(--color-text-tertiary, rgba(255, 255, 255, 0.5));
+    font-size: 0.85rem;
+}
+
+/* Empty State - Compact */
+.tp-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 2rem 1rem;
+}
+
+.empty-icon {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(168, 85, 247, 0.1);
+    border-radius: 16px;
+    margin-bottom: 1rem;
+}
+
+.empty-icon svg {
+    width: 30px;
+    height: 30px;
+    stroke: #a855f7;
+}
+
+.tp-empty-state h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-text-primary, #fff);
+    margin-bottom: 0.35rem;
+}
+
+.tp-empty-state>p {
+    font-size: 0.85rem;
+    color: var(--color-text-tertiary, rgba(255, 255, 255, 0.5));
+    margin-bottom: 1.5rem;
+}
+
+.empty-actions {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.tp-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.65rem 1rem;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tp-action-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.tp-action-btn.primary {
+    background: #a855f7;
+    border: none;
+    color: #fff;
+}
+
+.tp-action-btn.primary:hover {
+    background: #9333ea;
+    transform: translateY(-1px);
+}
+
+.tp-action-btn.secondary {
+    background: var(--color-bg-tertiary, rgba(255, 255, 255, 0.05));
+    border: 1px solid var(--color-border-primary, rgba(255, 255, 255, 0.12));
+    color: var(--color-text-secondary, rgba(255, 255, 255, 0.8));
+}
+
+.tp-action-btn.secondary:hover {
+    background: var(--color-bg-hover, rgba(255, 255, 255, 0.1));
+}
+
+.tp-move-btn {
+    margin-top: 1rem;
+    padding: 0.5rem 0.9rem;
+    background: transparent;
+    border: 1px dashed var(--color-border-primary, rgba(255, 255, 255, 0.2));
+    border-radius: 6px;
+    color: var(--color-text-tertiary, rgba(255, 255, 255, 0.5));
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tp-move-btn:hover {
+    border-color: rgba(168, 85, 247, 0.5);
+    color: #a855f7;
+}
+
+/* Floating Action Buttons */
+.fab-container {
+    position: fixed;
+    z-index: 100;
+}
+
+.fab-container.right {
+    bottom: 1.5rem;
+    right: 1.5rem;
+}
+
+/* Hidden checkbox for toggle */
+.fab-toggle {
+    display: none;
+}
+
+/* Main FAB Button */
+.fab-main {
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #a855f7;
+    border-radius: 16px;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(168, 85, 247, 0.4);
+    transition: all 0.25s ease;
+}
+
+.fab-main svg {
+    width: 22px;
+    height: 22px;
+    stroke: #fff;
+    transition: transform 0.25s ease;
+}
+
+.fab-main:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 25px rgba(168, 85, 247, 0.5);
+}
+
+.fab-toggle:checked+.fab-main svg {
+    transform: rotate(45deg);
+}
+
+/* FAB Menu */
+.fab-menu {
+    position: absolute;
+    bottom: 60px;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: all 0.2s ease;
+}
+
+.fab-toggle:checked~.fab-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.fab-option {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.6rem 1rem;
+    background: var(--color-bg-elevated, #1a1a1e);
+    border: 1px solid var(--color-border-secondary, rgba(255, 255, 255, 0.12));
+    border-radius: 10px;
+    color: var(--color-text-primary, #fff);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    transition: all 0.15s ease;
+}
+
+.fab-option svg {
+    width: 18px;
+    height: 18px;
+    stroke: var(--color-text-secondary, rgba(255, 255, 255, 0.7));
+}
+
+.fab-option:hover {
+    background: var(--color-bg-hover, rgba(255, 255, 255, 0.08));
+    transform: translateX(-4px);
+}
+
+.fab-option.ai:hover {
+    background: rgba(168, 85, 247, 0.15);
+    border-color: rgba(168, 85, 247, 0.3);
+}
+
+.fab-option.ai:hover svg {
+    stroke: #a855f7;
+}
+
+/* Plan Assistant FAB (Left) */
+.fab-assistant {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 1.5rem;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-bg-tertiary, rgba(255, 255, 255, 0.08));
+    border: 1px solid var(--color-border-primary, rgba(255, 255, 255, 0.12));
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 100;
+}
+
+.fab-assistant svg {
+    width: 20px;
+    height: 20px;
+    stroke: var(--color-text-secondary, rgba(255, 255, 255, 0.6));
+}
+
+.fab-assistant:hover,
+.fab-assistant.active {
+    background: #a855f7;
+    border-color: #a855f7;
+    box-shadow: 0 4px 16px rgba(168, 85, 247, 0.4);
+}
+
+.fab-assistant:hover svg,
+.fab-assistant.active svg {
+    stroke: #fff;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .tp-header {
+        padding: 0.5rem 0.75rem;
+    }
+
+    .tp-stats-bar {
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .tp-stat {
+        padding: 0.15rem 0.35rem;
+    }
+
+    .tp-stat .stat-value {
+        font-size: 0.8rem;
+    }
+
+    .tp-stat .stat-label {
+        font-size: 0.6rem;
+    }
+
+    .tp-main {
+        padding: 0.5rem 0.75rem;
+        padding-bottom: 5rem;
+    }
+
+    .empty-actions {
+        flex-direction: column;
+        width: 100%;
+        max-width: 240px;
+    }
+
+    .tp-action-btn {
+        justify-content: center;
+    }
+
+    .fab-container.right {
+        bottom: 1rem;
+        right: 1rem;
+    }
+
+    .fab-main {
+        width: 48px;
+        height: 48px;
+    }
+
+    .fab-assistant {
+        bottom: 1rem;
+        left: 1rem;
+        width: 44px;
+        height: 44px;
+    }
+}
+
+/* Light theme support */
+[data-theme="light"] .tomorrow-plans {
+    background: #f8fafc;
+}
+
+[data-theme="light"] .tp-header {
+    background: rgba(255, 255, 255, 0.95);
+    border-bottom-color: #e2e8f0;
+}
+
+[data-theme="light"] .tp-icon-btn {
+    background: #f1f5f9;
+    border-color: #e2e8f0;
+}
+
+[data-theme="light"] .tp-icon-btn svg {
+    stroke: #64748b;
+}
+
+[data-theme="light"] .tp-date-btn {
+    background: #f1f5f9;
+    border-color: #e2e8f0;
+}
+
+[data-theme="light"] .tp-date-btn .date-label {
+    color: #1e293b;
+}
+
+[data-theme="light"] .tp-date-btn .date-full {
+    color: #64748b;
+}
+
+[data-theme="light"] .tp-stat {
+    background: #f1f5f9;
+}
+
+[data-theme="light"] .tp-stat .stat-value {
+    color: #1e293b;
+}
+
+[data-theme="light"] .tp-stat .stat-label {
+    color: #64748b;
+}
+
+[data-theme="light"] .tp-empty-state h2 {
+    color: #1e293b;
+}
+
+[data-theme="light"] .tp-empty-state>p {
+    color: #64748b;
+}
+
+[data-theme="light"] .tp-action-btn.secondary {
+    background: #f1f5f9;
+    border-color: #e2e8f0;
+    color: #334155;
+}
+
+[data-theme="light"] .quick-btn {
+    background: #f1f5f9;
+    border-color: #e2e8f0;
+    color: #475569;
+}
