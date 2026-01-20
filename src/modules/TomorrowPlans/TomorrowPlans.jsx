@@ -5,6 +5,7 @@ import TaskForm from './components/TaskForm';
 import AIPlanner from './components/AIPlanner';
 import MiniCalendar from './components/MiniCalendar';
 import PlanChatbot from './components/PlanChatbot';
+import useSwipeGesture from '../../hooks/useSwipeGesture';
 import { getDailyPlan, saveDailyPlan, addTask, updateTask, deleteTask, moveUnfinishedTasks, getDayStats, formatDateKey } from './services/planService';
 import { toastSuccess, toastError, toastInfo } from '../../components/Toast/Toast';
 import './TomorrowPlans.css';
@@ -165,6 +166,21 @@ function TomorrowPlans({ user }) {
     const stats = useMemo(() => getDayStats(plan?.tasks), [plan]);
     const hasTasks = plan?.tasks && plan.tasks.length > 0;
 
+    // Swipe gesture for mobile date navigation
+    const { handlers: swipeHandlers, isSwiping, swipeDirection, swipeDistance } = useSwipeGesture({
+        onSwipeLeft: goToNextDay,  // Swipe left = next day
+        onSwipeRight: goToPrevDay, // Swipe right = previous day
+        threshold: 60,
+        allowedTime: 400,
+    });
+
+    // Calculate swipe visual feedback
+    const swipeProgress = Math.min(swipeDistance / 100, 1);
+    const swipeStyle = isSwiping && (swipeDirection === 'left' || swipeDirection === 'right') ? {
+        transform: `translateX(${swipeDirection === 'right' ? swipeDistance * 0.3 : -swipeDistance * 0.3}px)`,
+        opacity: 1 - (swipeProgress * 0.2),
+    } : {};
+
     return (
         <div className="tomorrow-plans">
             {/* Compact Header */}
@@ -261,8 +277,30 @@ function TomorrowPlans({ user }) {
                 </div>
             </header>
 
-            {/* Main Content */}
-            <main className="tp-main">
+            {/* Main Content - Swipeable for date navigation on mobile */}
+            <main
+                className={`tp-main ${isSwiping ? 'swiping' : ''}`}
+                {...swipeHandlers}
+                style={swipeStyle}
+            >
+                {/* Swipe Indicators */}
+                {isSwiping && swipeDirection === 'right' && swipeDistance > 20 && (
+                    <div className="swipe-indicator left" style={{ opacity: swipeProgress }}>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <polyline points="15 18 9 12 15 6" />
+                        </svg>
+                        <span>Previous Day</span>
+                    </div>
+                )}
+                {isSwiping && swipeDirection === 'left' && swipeDistance > 20 && (
+                    <div className="swipe-indicator right" style={{ opacity: swipeProgress }}>
+                        <span>Next Day</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <polyline points="9 18 15 12 9 6" />
+                        </svg>
+                    </div>
+                )}
+
                 {loading ? (
                     <div className="tp-loading">
                         <div className="loading-spinner"></div>
@@ -278,6 +316,15 @@ function TomorrowPlans({ user }) {
                         </div>
                         <h2>Plan your {dateLabel.toLowerCase()}</h2>
                         <p>Add tasks manually or let AI create a schedule</p>
+                        <p className="swipe-hint">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <polyline points="15 18 9 12 15 6" />
+                            </svg>
+                            Swipe to change day
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <polyline points="9 18 15 12 9 6" />
+                            </svg>
+                        </p>
 
                         <div className="empty-actions">
                             <button

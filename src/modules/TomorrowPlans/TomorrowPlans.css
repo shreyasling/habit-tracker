@@ -201,6 +201,89 @@
     flex: 1;
     padding: 0.75rem 1rem;
     overflow-y: auto;
+    position: relative;
+    transition: transform 0.1s ease-out, opacity 0.1s ease-out;
+    touch-action: pan-y;
+}
+
+.tp-main.swiping {
+    cursor: grabbing;
+    user-select: none;
+}
+
+/* Swipe Indicators */
+.swipe-indicator {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: rgba(168, 85, 247, 0.9);
+    border-radius: 12px;
+    color: white;
+    font-size: 0.85rem;
+    font-weight: 500;
+    z-index: 200;
+    box-shadow: 0 4px 20px rgba(168, 85, 247, 0.4);
+    animation: swipeIndicatorPop 0.15s ease;
+}
+
+.swipe-indicator.left {
+    left: 1rem;
+}
+
+.swipe-indicator.right {
+    right: 1rem;
+}
+
+.swipe-indicator svg {
+    width: 18px;
+    height: 18px;
+    stroke: white;
+}
+
+@keyframes swipeIndicatorPop {
+    from {
+        transform: translateY(-50%) scale(0.8);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(-50%) scale(1);
+        opacity: 1;
+    }
+}
+
+/* Swipe Hint in Empty State */
+.swipe-hint {
+    display: none;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-text-muted, rgba(255, 255, 255, 0.35));
+    font-size: 0.75rem;
+    margin-top: -0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.swipe-hint svg {
+    width: 14px;
+    height: 14px;
+    stroke: var(--color-text-muted, rgba(255, 255, 255, 0.35));
+}
+
+/* Only show swipe hint on mobile/touch devices */
+@media (max-width: 768px) {
+    .swipe-hint {
+        display: flex;
+    }
+}
+
+@media (hover: none) and (pointer: coarse) {
+    .swipe-hint {
+        display: flex;
+    }
 }
 
 /* Loading */
