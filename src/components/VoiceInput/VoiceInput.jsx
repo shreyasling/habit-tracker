@@ -38,7 +38,7 @@ function VoiceInput({
     }, [onTranscript, onInterimTranscript]);
 
     const handleError = useCallback((error) => {
-        if (error.code === 'not-allowed') {
+        if (error.code === 'not-allowed' || error.code === 'NotAllowedError') {
             setShowPermissionHelp(true);
         }
     }, []);
@@ -49,6 +49,9 @@ function VoiceInput({
         permissionStatus,
         audioLevel,
         error,
+        isMobile,
+        isIOS,
+        isMobileWarning,
         startListening,
         stopListening,
     } = useVoiceRecognition({
@@ -208,19 +211,53 @@ function VoiceInput({
             )}
 
             {/* Error/Permission Help Message */}
-            {(error || showPermissionHelp) && (
+            {(error || showPermissionHelp || isMobileWarning) && (
                 <div className="voice-error-tooltip">
                     <div className="error-content">
-                        {permissionStatus === 'denied' ? (
+                        {isMobileWarning && !error && !showPermissionHelp ? (
+                            <>
+                                <strong>iOS PWA Notice</strong>
+                                <p>Speech recognition may have limited support in this PWA. For best results, open this page in Safari instead.</p>
+                                <button
+                                    className="retry-btn"
+                                    onClick={() => startListening()}
+                                >
+                                    Try Anyway
+                                </button>
+                            </>
+                        ) : permissionStatus === 'denied' ? (
                             <>
                                 <strong>Microphone Access Denied</strong>
-                                <p>Please enable microphone access in your browser settings:</p>
-                                <ol>
-                                    <li>Click the lock/info icon in the address bar</li>
-                                    <li>Find "Microphone" in permissions</li>
-                                    <li>Select "Allow"</li>
-                                    <li>Refresh the page</li>
-                                </ol>
+                                {isMobile ? (
+                                    <>
+                                        <p>Please enable microphone access:</p>
+                                        {isIOS ? (
+                                            <ol>
+                                                <li>Go to Settings → Safari</li>
+                                                <li>Scroll to "Settings for Websites"</li>
+                                                <li>Tap "Microphone" and select "Allow"</li>
+                                                <li>Reopen this page</li>
+                                            </ol>
+                                        ) : (
+                                            <ol>
+                                                <li>Tap the lock icon in the address bar</li>
+                                                <li>Tap "Permissions" or "Site settings"</li>
+                                                <li>Enable "Microphone"</li>
+                                                <li>Refresh the page</li>
+                                            </ol>
+                                        )}
+                                    </>
+                                ) : (
+                                    <>
+                                        <p>Please enable microphone access in your browser settings:</p>
+                                        <ol>
+                                            <li>Click the lock/info icon in the address bar</li>
+                                            <li>Find "Microphone" in permissions</li>
+                                            <li>Select "Allow"</li>
+                                            <li>Refresh the page</li>
+                                        </ol>
+                                    </>
+                                )}
                             </>
                         ) : error ? (
                             <>
