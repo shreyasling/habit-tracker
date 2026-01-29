@@ -34,7 +34,7 @@ function AIAnalysis({ tasks, completionData, monthStats, taskStats, isVisible, o
                     </div>
                     <div>
                         <h2>AI Productivity Analysis</h2>
-                        <p>Get personalized insights powered by Gemini AI</p>
+                        <p>Get personalized insights powered by AI</p>
                     </div>
                     <button className="close-btn" onClick={onClose}>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

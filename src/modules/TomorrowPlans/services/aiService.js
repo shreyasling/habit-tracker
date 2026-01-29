@@ -1,17 +1,52 @@
 /**
  * AI Service for Tomorrow Plans
- * Uses Gemini to parse natural language into structured tasks
+ * Uses OpenRouter API to parse natural language into structured tasks
  */
 
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY || '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';
+const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
+const MODEL = 'openai/gpt-oss-120b:free';
+
+/**
+ * Call OpenRouter API
+ */
+async function callOpenRouter(systemPrompt, userPrompt, options = {}) {
+    const messages = [];
+
+    if (systemPrompt) {
+        messages.push({ role: 'system', content: systemPrompt });
+    }
+
+    messages.push({ role: 'user', content: userPrompt });
+
+    const response = await fetch(OPENROUTER_API_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${OPENROUTER_API_KEY}`
+        },
+        body: JSON.stringify({
+            model: MODEL,
+            messages: messages,
+            ...options
+        })
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`API error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
+    }
+
+    const data = await response.json();
+    return data.choices?.[0]?.message?.content || null;
+}
 
 /**
  * Parse natural language plan into structured tasks
  */
 export const generatePlanFromText = async (userInput, existingTasks = []) => {
-    if (!GEMINI_API_KEY) {
-        throw new Error('Gemini API key not configured');
+    if (!OPENROUTER_API_KEY) {
+        throw new Error('OpenRouter API key not configured');
     }
 
     const currentTime = new Date().toLocaleTimeString('en-US', {
@@ -20,26 +55,23 @@ export const generatePlanFromText = async (userInput, existingTasks = []) => {
         hour12: false
     });
 
-    const prompt = `You are a smart daily planner assistant. Parse the user's description of their day and create a structured schedule.
+    const systemPrompt = `You are a smart daily planner assistant. Your job is to EXTRACT and PRESERVE the exact schedule provided by the user.
 
 Current time: ${currentTime}
 
-User's plan description:
-"${userInput}"
+CRITICAL RULES:
+1. **RESPECT EXACT TIMES**: If the user provides specific times (like "09:00 AM - 10:00 AM"), you MUST use those EXACT times. Do NOT modify, shift, or create different times.
+2. **EXTRACT, DON'T CREATE**: Parse the user's schedule and extract ALL tasks with their EXACT provided timings.
+3. **CONVERT TO 24-HOUR FORMAT**: Convert any 12-hour format (AM/PM) to 24-hour format:
+   - "09:00 AM" → "09:00"
+   - "01:00 PM" → "13:00"
+   - "10:00 PM" → "22:00"
+   - "12:00 AM" → "00:00"
 
 ${existingTasks.length > 0 ? `
-IMPORTANT - These time slots are ALREADY OCCUPIED (DO NOT overlap with these):
+These time slots are ALREADY in the system (skip duplicates):
 ${existingTasks.map(t => `- ${t.startTime} to ${t.endTime}: ${t.title}`).join('\n')}
-
-You MUST schedule new tasks in the gaps between these busy slots. Never create overlapping times.
 ` : ''}
-
-Create 4-6 realistic time-slot tasks based on their description. Each task should have:
-- Realistic duration (30 min to 2 hours typically)
-- 10-15 minute buffer between tasks
-- Clear, actionable title
-- Brief helpful description
-- ABSOLUTELY NO overlapping with existing tasks
 
 RESPOND ONLY with valid JSON array (no markdown, no explanation):
 [
@@ -47,42 +79,22 @@ RESPOND ONLY with valid JSON array (no markdown, no explanation):
     "startTime": "HH:MM",
     "endTime": "HH:MM", 
     "title": "Task title",
-    "description": "Brief description or tip",
+    "description": "Brief motivating description or tip for this task",
     "priority": "high" | "medium" | "low"
   }
 ]
 
-Rules:
-- Use 24-hour format for times (e.g., "09:00", "14:30")
-- Start from current time or later if they mention "now"
-- Keep tasks focused and achievable
-- Add motivating descriptions
-- NEVER overlap with existing occupied time slots
-- If user mentions vague times like "morning", use sensible defaults (morning: 09:00-12:00, afternoon: 12:00-17:00, evening: 17:00-21:00)`;
+Priority assignment:
+- "high" for Academic, Project, Work tasks
+- "medium" for Study, Development tasks
+- "low" for Breaks, Health, Personal tasks
+
+REMEMBER: Use the EXACT times the user gave. If they said "02:00 PM - 03:00 PM", output "14:00" to "15:00". Do NOT invent your own schedule!`;
+
+    const userPrompt = `Extract ALL tasks from this schedule and preserve the EXACT times provided:\n\n${userInput}`;
 
     try {
-        const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                contents: [{
-                    parts: [{ text: prompt }]
-                }],
-                generationConfig: {
-                    temperature: 0.7,
-                    maxOutputTokens: 1024,
-                }
-            })
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to generate plan');
-        }
-
-        const data = await response.json();
-        const textContent = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        const textContent = await callOpenRouter(systemPrompt, userPrompt);
 
         if (!textContent) {
             throw new Error('No response from AI');
@@ -120,11 +132,13 @@ Rules:
  * Get AI suggestions for improving the schedule
  */
 export const getScheduleSuggestions = async (tasks) => {
-    if (!GEMINI_API_KEY || !tasks || tasks.length === 0) {
+    if (!OPENROUTER_API_KEY || !tasks || tasks.length === 0) {
         return null;
     }
 
-    const prompt = `Analyze this daily schedule and provide brief helpful suggestions:
+    const systemPrompt = `You are a helpful scheduling assistant. Provide brief, actionable suggestions.`;
+
+    const userPrompt = `Analyze this daily schedule and provide brief helpful suggestions:
 
 Schedule:
 ${tasks.map(t => `- ${t.startTime}-${t.endTime}: ${t.title} (${t.status})`).join('\n')}
@@ -137,17 +151,7 @@ Provide 1-2 short suggestions (max 50 words total). Consider:
 Respond with just the suggestions, no formatting.`;
 
     try {
-        const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: prompt }] }],
-                generationConfig: { temperature: 0.5, maxOutputTokens: 100 }
-            })
-        });
-
-        const data = await response.json();
-        return data.candidates?.[0]?.content?.parts?.[0]?.text || null;
+        return await callOpenRouter(systemPrompt, userPrompt);
     } catch (error) {
         console.error('AI Suggestions Error:', error);
         return null;
@@ -158,8 +162,8 @@ Respond with just the suggestions, no formatting.`;
  * Chat with AI about today's tasks
  */
 export const chatAboutTasks = async (message, tasks, chatHistory = []) => {
-    if (!GEMINI_API_KEY) {
-        return "AI assistant is not configured. Please add your Gemini API key.";
+    if (!OPENROUTER_API_KEY) {
+        return "AI assistant is not configured. Please add your OpenRouter API key.";
     }
 
     const stats = {
@@ -169,7 +173,7 @@ export const chatAboutTasks = async (message, tasks, chatHistory = []) => {
         inProgress: tasks.filter(t => t.status === 'partial' || t.status === 'tried').length
     };
 
-    const systemContext = `You are a helpful daily planning assistant. Be concise and encouraging.
+    const systemPrompt = `You are a helpful daily planning assistant. Be concise and encouraging.
 
 Today's schedule:
 ${tasks.length > 0
@@ -182,22 +186,12 @@ Stats: ${stats.total} total, ${stats.completed} done, ${stats.pending} pending
 Previous messages:
 ${chatHistory.slice(-4).map(m => `${m.role}: ${m.content}`).join('\n')}
 
-User asks: "${message}"
-
 Respond helpfully in 1-2 sentences. Be specific about their tasks when relevant.`;
 
-    try {
-        const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: systemContext }] }],
-                generationConfig: { temperature: 0.7, maxOutputTokens: 150 }
-            })
-        });
+    const userPrompt = message;
 
-        const data = await response.json();
-        return data.candidates?.[0]?.content?.parts?.[0]?.text || "I couldn't process that. Try again!";
+    try {
+        return await callOpenRouter(systemPrompt, userPrompt);
     } catch (error) {
         console.error('Chat Error:', error);
         return "Sorry, I'm having trouble connecting. Please try again.";

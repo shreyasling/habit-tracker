@@ -160,7 +160,7 @@ function AIChatBot({ context, tasks, year, month, onToggleCompletion }) {
                         </div>
                         <div>
                             <h3>AI Assistant</h3>
-                            <span className="chat-status">Powered by Gemini</span>
+                            <span className="chat-status">Powered by AI</span>
                         </div>
                     </div>
                     <button

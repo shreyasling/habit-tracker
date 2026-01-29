@@ -1,9 +1,10 @@
-// Get API key from environment variable (secure)
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent';
+// OpenRouter API Configuration
+const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY || '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';
+const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
+const MODEL = 'openai/gpt-4.1-nano';
 
 // Rate limiting configuration
-const MIN_REQUEST_INTERVAL = 3000; // Minimum 3 seconds between requests
+const MIN_REQUEST_INTERVAL = 1000; // Minimum 1 second between requests
 let lastRequestTime = 0;
 let requestQueue = Promise.resolve();
 
@@ -45,34 +46,35 @@ async function rateLimitedFetch(url, options) {
 }
 
 /**
- * Call Gemini API with a prompt (with retry logic for rate limiting)
+ * Call OpenRouter API with a prompt (with retry logic for rate limiting)
  * @param {string} prompt - The prompt to send
  * @param {string} systemInstruction - Optional system instruction
  * @param {number} maxRetries - Maximum retry attempts
  * @returns {Promise<string>} - The AI response
  */
 export async function callGemini(prompt, systemInstruction = '', maxRetries = 3) {
-    const requestBody = {
-        contents: [{
-            parts: [{ text: prompt }]
-        }]
-    };
+    const messages = [];
 
     if (systemInstruction) {
-        requestBody.systemInstruction = {
-            parts: [{ text: systemInstruction }]
-        };
+        messages.push({ role: 'system', content: systemInstruction });
     }
+
+    messages.push({ role: 'user', content: prompt });
+
+    const requestBody = {
+        model: MODEL,
+        messages: messages
+    };
 
     let lastError;
 
     for (let attempt = 0; attempt < maxRetries; attempt++) {
         try {
-            const response = await rateLimitedFetch(GEMINI_API_URL, {
+            const response = await rateLimitedFetch(OPENROUTER_API_URL, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'x-goog-api-key': GEMINI_API_KEY
+                    'Authorization': `Bearer ${OPENROUTER_API_KEY}`
                 },
                 body: JSON.stringify(requestBody)
             });
@@ -86,14 +88,15 @@ export async function callGemini(prompt, systemInstruction = '', maxRetries = 3)
             }
 
             if (!response.ok) {
-                throw new Error(`API error: ${response.status}`);
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(`API error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
             }
 
             const data = await response.json();
-            return data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response generated';
+            return data.choices?.[0]?.message?.content || 'No response generated';
         } catch (error) {
             lastError = error;
-            console.error(`Gemini API error (attempt ${attempt + 1}):`, error);
+            console.error(`OpenRouter API error (attempt ${attempt + 1}):`, error);
 
             if (attempt < maxRetries - 1) {
                 const waitTime = Math.pow(2, attempt + 1) * 1000;
@@ -102,7 +105,7 @@ export async function callGemini(prompt, systemInstruction = '', maxRetries = 3)
         }
     }
 
-    throw lastError || new Error('Failed to call Gemini API after retries');
+    throw lastError || new Error('Failed to call OpenRouter API after retries');
 }
 
 /**
@@ -322,4 +325,3 @@ Keep it under 20 words. Be varied and creative.`;
         isQuoteFetching = false;
     }
 }
-

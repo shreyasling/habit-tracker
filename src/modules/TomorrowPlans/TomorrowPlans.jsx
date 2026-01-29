@@ -8,6 +8,7 @@ import PlanChatbot from './components/PlanChatbot';
 import useSwipeGesture from '../../hooks/useSwipeGesture';
 import { getDailyPlan, saveDailyPlan, addTask, updateTask, deleteTask, moveUnfinishedTasks, getDayStats, formatDateKey } from './services/planService';
 import { toastSuccess, toastError, toastInfo } from '../../components/Toast/Toast';
+import { scheduleAllTaskNotifications, startTaskNotificationChecker, stopTaskNotificationChecker, ensureNotificationPermission } from './services/taskNotificationService';
 import './TomorrowPlans.css';
 
 function TomorrowPlans({ user }) {
@@ -76,6 +77,29 @@ function TomorrowPlans({ user }) {
     useEffect(() => {
         loadPlan();
     }, [loadPlan]);
+
+    // Schedule task notifications when plan changes (only for today)
+    useEffect(() => {
+        if (!plan?.tasks || !isToday) return;
+
+        // Request permission if needed and schedule notifications
+        const setupNotifications = async () => {
+            const permission = await ensureNotificationPermission();
+            if (permission.granted) {
+                // Schedule all notifications for today's tasks
+                scheduleAllTaskNotifications(plan.tasks);
+            }
+        };
+
+        setupNotifications();
+
+        // Also start the polling checker as a backup (for when app is in background)
+        const stopChecker = startTaskNotificationChecker(() => plan?.tasks || []);
+
+        return () => {
+            stopChecker();
+        };
+    }, [plan?.tasks, isToday]);
 
     // Task operations
     const handleAddTask = async (taskData) => {
