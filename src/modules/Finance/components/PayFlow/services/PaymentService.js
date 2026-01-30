@@ -113,16 +113,19 @@ class PaymentService {
             const start = Date.now();
             window.location.href = url;
 
-            // Simple heuristic to detect "failure" (user is still here after 2s)
-            // This is not perfect in a browser but works okay for "did it open?" feedback
+            // Simple heuristic to detect "failure" (user is still here after delay)
+            // We increased this to 5000ms to allow time for App Lock / Fingerprint screens to appear.
             setTimeout(() => {
-                if (document.hidden || Date.now() - start > 2200) {
+                // If document is hidden, it definitely worked (user left browser)
+                if (document.hidden) {
                     resolve({ success: true });
                 } else {
-                    // User likely didn't leave the page (app didn't open)
-                    resolve({ success: false, message: 'App did not open. Is it installed?' });
+                    // User is still here. 
+                    // It might have failed, OR they are just slow to unlock.
+                    // We'll return false, but the UI should handle this gently.
+                    resolve({ success: false, message: 'App launch timed out or failed.' });
                 }
-            }, 2000);
+            }, 5000);
         });
     }
 

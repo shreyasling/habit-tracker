@@ -85,14 +85,13 @@ function PayFlow({ onClose }) {
                 setStep('success');
                 handleRecordTransaction();
             } else {
-                // App likely not installed
-                alert(`Could not open ${method.name}. Make sure it is installed.`);
+                // Time out occurred, but user might still be unlocking app.
+                console.log("App launch timeout - user might still be on page or unlocking app");
                 setIsProcessingPayment(false);
             }
         } catch (e) {
             console.error(e);
             setIsProcessingPayment(false);
-            alert("Error launching app: " + e.message);
         }
     };
 
