@@ -34,15 +34,15 @@ const modules = [
     {
         id: 'finance',
         title: 'Financial Management',
-        description: 'Track expenses, budgets, and goals',
+        description: 'Track expenses, budgets, and goals with AI insights',
         icon: (
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                 <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
             </svg>
         ),
         route: '/finance',
-        status: 'planned',
-        color: '#3b82f6' // Blue
+        status: 'active',
+        color: '#a855f7' // Purple
     }
 ];
 

@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Home from './pages/Home';
 import ProductivityTracker from './modules/ProductivityTracker';
 import TomorrowPlans from './modules/TomorrowPlans';
+import Finance from './modules/Finance';
 import LoginScreen from './components/Auth/LoginScreen';
 import { onAuthChange, logOut } from './firebase/authService';
 import { toastInfo, toastError } from './components/Toast/Toast';
@@ -70,10 +71,10 @@ function App() {
           element={<TomorrowPlans user={user} />}
         />
 
-        {/* Finance Module (Future - redirects to home for now) */}
+        {/* Finance Module */}
         <Route
-          path="/finance"
-          element={<Navigate to="/" replace />}
+          path="/finance/*"
+          element={<Finance user={user} />}
         />
 
         {/* Catch all - redirect to home */}

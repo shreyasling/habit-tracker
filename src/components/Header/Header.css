@@ -458,43 +458,50 @@
 /* Mobile styles - Compact header */
 @media (max-width: 768px) {
     .header {
-        padding: var(--spacing-xs) var(--spacing-sm);
+        padding: 8px 12px;
+        height: auto;
+        overflow: hidden;
     }
 
     .header-container {
         display: flex;
         flex-direction: column;
-        gap: var(--spacing-xs);
+        gap: 6px;
     }
 
     .header-top {
+        display: flex;
         flex-direction: row;
-        gap: var(--spacing-sm);
+        justify-content: space-between;
         align-items: center;
         margin-bottom: 0;
+        width: 100%;
+        gap: 8px;
     }
 
     .header-brand {
-        flex: 1;
+        flex: 0 1 auto;
         min-width: 0;
+        gap: 6px;
     }
 
     .brand-icon {
-        width: 32px;
-        height: 32px;
+        width: 28px;
+        height: 28px;
         flex-shrink: 0;
     }
 
     .brand-icon svg {
-        width: 16px;
-        height: 16px;
+        width: 14px;
+        height: 14px;
     }
 
     .brand-text h1 {
-        font-size: 0.875rem;
+        font-size: 0.85rem;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        max-width: 100px;
     }
 
     .brand-text p {
@@ -502,129 +509,71 @@
     }
 
     .header-actions {
-        gap: var(--spacing-xs);
+        display: flex;
+        gap: 4px;
         flex-shrink: 0;
+        align-items: center;
     }
 
+    .icon-btn,
     .theme-toggle-btn,
-    .icon-btn {
-        width: 32px;
-        height: 32px;
+    .analyze-btn {
+        width: 32px !important;
+        height: 32px !important;
+        padding: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
     }
 
+    .analyze-btn span {
+        display: none;
+    }
+
+    .icon-btn svg,
     .theme-toggle-btn svg,
-    .icon-btn svg {
-        width: 14px;
-        height: 14px;
-    }
-
-    .header .analyze-btn {
-        width: 32px;
-        height: 32px;
-        padding: 0;
-        justify-content: center;
-    }
-
-    .header .analyze-btn svg {
-        width: 14px;
-        height: 14px;
+    .analyze-btn svg {
+        width: 16px;
+        height: 16px;
     }
 
     .user-menu {
-        margin-left: var(--spacing-xs);
-        padding-left: var(--spacing-xs);
-        gap: var(--spacing-xs);
+        margin-left: 2px;
+        padding-left: 4px;
+        gap: 4px;
+        border-left: 1px solid var(--color-border-primary);
     }
 
     .user-avatar,
     .user-avatar-fallback {
-        width: 28px;
-        height: 28px;
-        font-size: 0.75rem;
+        width: 26px;
+        height: 26px;
     }
 
     .logout-btn {
-        width: 28px;
-        height: 28px;
-    }
-
-    .logout-btn svg {
-        width: 14px;
-        height: 14px;
-    }
-
-    /* Show motivation bar on mobile */
-    .motivation-bar {
-        display: flex;
-        padding: var(--spacing-xs) var(--spacing-sm);
-        margin-bottom: var(--spacing-xs);
-        font-size: 0.75rem;
-    }
-
-    .motivation-bar .quote-text svg {
-        width: 12px;
-        height: 12px;
-    }
-
-    .quote-text {
-        font-size: 0.75rem;
+        width: 26px;
+        height: 26px;
     }
 
     /* Compact navigation */
     .header-nav {
-        padding: var(--spacing-xs) 0;
-        gap: var(--spacing-xs);
+        padding: 4px 0;
+        gap: 8px;
+        justify-content: center;
     }
 
     .nav-btn {
-        width: 32px;
-        height: 32px;
-    }
-
-    .nav-btn svg {
-        width: 14px;
-        height: 14px;
+        width: 30px;
+        height: 30px;
     }
 
     .current-month {
-        min-width: auto;
-        padding: 0 var(--spacing-sm);
+        min-width: 100px;
+        padding: 0 4px;
     }
 
     .month-name {
-        font-size: 0.875rem;
-    }
-
-    .year {
-        font-size: 0.625rem;
-    }
-
-    .today-btn {
-        margin-left: var(--spacing-xs);
-        padding: var(--spacing-xs) var(--spacing-sm);
-        font-size: 0.75rem;
-    }
-
-    .logout-confirm-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: var(--spacing-md);
-    }
-
-    .logout-confirm-dialog {
-        margin: 0;
-        width: calc(100vw - 32px);
-        max-width: 300px;
-        position: relative;
-        top: auto;
-        left: auto;
-        transform: none;
+        font-size: 0.85rem;
     }
 }
 

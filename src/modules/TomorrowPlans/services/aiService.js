@@ -3,16 +3,15 @@
  * Uses OpenRouter API to parse natural language into structured tasks
  */
 
-const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY || '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';
+const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY;
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const MODEL = 'openai/gpt-oss-120b:free';
+const MODEL = 'openai/gpt-4.1-nano';
 
 /**
  * Call OpenRouter API
  */
 async function callOpenRouter(systemPrompt, userPrompt, options = {}) {
     const messages = [];
-
     if (systemPrompt) {
         messages.push({ role: 'system', content: systemPrompt });
     }
@@ -28,6 +27,9 @@ async function callOpenRouter(systemPrompt, userPrompt, options = {}) {
         body: JSON.stringify({
             model: MODEL,
             messages: messages,
+            reasoning: {
+                enabled: true
+            },
             ...options
         })
     });
