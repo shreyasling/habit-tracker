@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 function AssetsChart({ transactions, symbol }) {
-    const [period, setPeriod] = useState('monthly');
+    const [period, setPeriod] = useState('weekly');
 
     // Generate chart data based on period
     const chartData = useMemo(() => {
