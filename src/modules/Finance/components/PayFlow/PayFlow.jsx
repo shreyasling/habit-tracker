@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useFinance } from '../../context/FinanceContext';
 import { paymentService, PAYMENT_METHODS } from './services/PaymentService';
 import PaymentModal from './components/PaymentModal/PaymentModal';
 import ProcessingOverlay from './components/ProcessingOverlay/ProcessingOverlay';
+import { Html5QrcodeScanner } from 'html5-qrcode';
 
 function PayFlow({ onClose }) {
     const { state, actions } = useFinance();
@@ -25,6 +26,66 @@ function PayFlow({ onClose }) {
     const [isProcessingPayment, setIsProcessingPayment] = useState(false);
     const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null);
 
+    // Scanner State
+    const [showScanner, setShowScanner] = useState(false);
+    const [scannedUri, setScannedUri] = useState(null);
+
+    useEffect(() => {
+        if (showScanner) {
+            const scanner = new Html5QrcodeScanner(
+                "reader",
+                { fps: 10, qrbox: { width: 250, height: 250 } },
+                /* verbose= */ false
+            );
+
+            scanner.render((decodedText) => {
+                handleScanSuccess(decodedText, scanner);
+            }, (error) => {
+                // handle scan failure, usually better to ignore as it triggers on every frame check
+            });
+
+            return () => {
+                scanner.clear().catch(error => console.error("Failed to clear scanner", error));
+            };
+        }
+    }, [showScanner]);
+
+    const handleScanSuccess = (decodedText, scanner) => {
+        console.log("Scanned:", decodedText);
+
+        // Simple validation for UPI
+        if (decodedText.toLowerCase().includes("upi://") || decodedText.toLowerCase().includes("tez://")) {
+            setScannedUri(decodedText);
+
+            // Try parse params
+            try {
+                const url = new URL(decodedText);
+                const am = url.searchParams.get('am');
+                const pn = url.searchParams.get('pn');
+                const tn = url.searchParams.get('tn'); // Transaction Note
+
+                setFormData(prev => ({
+                    ...prev,
+                    amount: am || prev.amount,
+                    note: tn || (pn ? `Pay to ${pn}` : prev.note)
+                }));
+            } catch (e) {
+                console.warn("Could not parse URI params", e);
+            }
+
+            cancelScan(scanner);
+        } else {
+            alert("Not a valid UPI QR Code");
+        }
+    };
+
+    const cancelScan = (scannerInstance) => {
+        if (scannerInstance) {
+            scannerInstance.clear().catch(console.error);
+        }
+        setShowScanner(false);
+    };
+
     const handleAmountChange = (value) => {
         // Only allow numbers and decimal point
         const cleaned = value.replace(/[^0-9.]/g, '');
@@ -39,7 +100,6 @@ function PayFlow({ onClose }) {
                 alert("Source and Destination accounts cannot be the same.");
                 return;
             }
-            // For transfer, go to standard confirmation steps
             setStep('confirm');
             return;
         }
@@ -50,19 +110,10 @@ function PayFlow({ onClose }) {
 
     const startPaymentFlow = async () => {
         const amount = parseFloat(formData.amount);
-
         try {
-            // 1. Try Native Payment Request API
-            // Note: In most non-HTTPS local envs or without specific setup, this throws or returns false immediately.
-            // We'll wrap in try-catch to be safe.
             await paymentService.requestNativePayment(amount, formData.note || 'Payment');
-
-            // If successful (await didn't throw), it means user authorized via Native UI
-            // Show processing briefly then separate success
             simulateProcessing({ id: 'native', name: 'Native Payment' });
-
         } catch (error) {
-            // Fallback to Custom Payment Modal
             console.log('Native payment not available or cancelled, showing modal', error);
             setShowPaymentModal(true);
         }
@@ -77,15 +128,14 @@ function PayFlow({ onClose }) {
         setIsProcessingPayment(true);
 
         try {
-            const result = await paymentService.launchNativeApp(method, parseFloat(formData.amount));
+            // Pass scannedUri if available
+            const result = await paymentService.launchNativeApp(method, parseFloat(formData.amount), scannedUri);
 
             if (result.success) {
-                // If we think it opened successfully (or browser handled it)
                 setIsProcessingPayment(false);
                 setStep('success');
                 handleRecordTransaction();
             } else {
-                // Time out occurred, but user might still be unlocking app.
                 console.log("App launch timeout - user might still be on page or unlocking app");
                 setIsProcessingPayment(false);
             }
@@ -106,7 +156,6 @@ function PayFlow({ onClose }) {
     };
 
     const handleRecordTransaction = async () => {
-        // Actual DB recording
         try {
             await actions.addTransaction({
                 amount: parseFloat(formData.amount),
@@ -145,6 +194,22 @@ function PayFlow({ onClose }) {
     };
 
     const renderStep = () => {
+        if (showScanner) {
+            return (
+                <div style={{ padding: '20px', textAlign: 'center' }}>
+                    <h3 style={{ marginBottom: '20px' }}>Scan UPI QR</h3>
+                    <div id="reader" style={{ width: '100%' }}></div>
+                    <button
+                        onClick={() => setShowScanner(false)}
+                        className="btn btn-secondary"
+                        style={{ marginTop: '20px', width: '100%' }}
+                    >
+                        Cancel Scan
+                    </button>
+                </div>
+            );
+        }
+
         switch (step) {
             case 'input':
                 return (
@@ -184,6 +249,53 @@ function PayFlow({ onClose }) {
                                 Transfer
                             </button>
                         </div>
+
+                        {/* Scan Button (Only for Expense) */}
+                        {mode === 'expense' && !scannedUri && (
+                            <div style={{ padding: '0 24px 16px', display: 'flex', justifyContent: 'center' }}>
+                                <button
+                                    onClick={() => setShowScanner(true)}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '8px',
+                                        padding: '8px 16px',
+                                        borderRadius: '20px',
+                                        background: 'var(--fin-bg-elevated)',
+                                        border: '1px solid var(--fin-border)',
+                                        color: 'var(--fin-text-primary)',
+                                        cursor: 'pointer',
+                                        fontSize: '14px'
+                                    }}
+                                >
+                                    <span style={{ fontSize: '18px' }}>📷</span>
+                                    Scan QR to Pay
+                                </button>
+                            </div>
+                        )}
+
+                        {scannedUri && (
+                            <div style={{
+                                margin: '0 24px 16px',
+                                padding: '12px',
+                                background: '#f0fdf4',
+                                borderRadius: '8px',
+                                border: '1px solid #86efac',
+                                color: '#15803d',
+                                fontSize: '14px',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center'
+                            }}>
+                                <span>✅ QR Scanned. Paying to detected ID.</span>
+                                <button
+                                    onClick={() => { setScannedUri(null); setFormData(p => ({ ...p, note: '' })); }}
+                                    style={{ background: 'none', border: 'none', color: '#15803d', cursor: 'pointer', textDecoration: 'underline' }}
+                                >
+                                    Reset
+                                </button>
+                            </div>
+                        )}
 
                         <div className="payflow-amount-display">
                             <p className="payflow-label">Enter Amount</p>
@@ -381,9 +493,7 @@ function PayFlow({ onClose }) {
                 <div className="modal payflow-modal" onClick={(e) => e.stopPropagation()}>
                     <div className="modal-header">
                         <h2 className="modal-title">
-                            {step === 'input' && (mode === 'expense' ? 'Pay' : 'Transfer')}
-                            {step === 'confirm' && 'Confirm Transaction'}
-                            {step === 'success' && 'Success'}
+                            {showScanner ? 'Scan QR' : (step === 'input' ? (mode === 'expense' ? 'Pay' : 'Transfer') : (step === 'confirm' ? 'Confirm Transaction' : 'Success'))}
                         </h2>
                         <button className="modal-close" onClick={onClose}>
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20">
