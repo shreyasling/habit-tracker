@@ -4,7 +4,7 @@ import AddExpense from '../AddExpense/AddExpense';
 
 function Transactions() {
     const { state, actions } = useFinance();
-    const { transactions, expenseCategories, incomeCategories, customCategories = [] } = state;
+    const { transactions, expenseCategories, incomeCategories, customCategories = [], bankAccounts = [] } = state;
     const symbol = state.settings.currencySymbol || '$';
     const allCategories = [...expenseCategories, ...incomeCategories, ...customCategories];
 
@@ -49,6 +49,7 @@ function Transactions() {
     const [sortBy, setSortBy] = useState('date'); // date, amount
     const [sortOrder, setSortOrder] = useState('desc'); // asc, desc
     const [showFilters, setShowFilters] = useState(false);
+    const [accountFilter, setAccountFilter] = useState('all'); // all or account id
 
     const getCategoryInfo = (categoryId) => {
         return allCategories.find(c => c.id === categoryId) || { name: 'Other', icon: '📦', color: '#6b7280' };
@@ -79,6 +80,11 @@ function Transactions() {
         // Category filter
         if (categoryFilter !== 'all') {
             result = result.filter(tx => tx.categoryId === categoryFilter);
+        }
+
+        // Account filter
+        if (accountFilter !== 'all') {
+            result = result.filter(tx => tx.bankAccountId === accountFilter);
         }
 
         // Date range filter
@@ -142,7 +148,7 @@ function Transactions() {
         });
 
         return result;
-    }, [transactions, searchQuery, typeFilter, categoryFilter, dateRange, customStartDate, customEndDate, amountFilter, customMinAmount, customMaxAmount, sortBy, sortOrder]);
+    }, [transactions, searchQuery, typeFilter, categoryFilter, accountFilter, dateRange, customStartDate, customEndDate, amountFilter, customMinAmount, customMaxAmount, sortBy, sortOrder]);
 
     // Calculate summary stats
     const stats = useMemo(() => {
@@ -161,9 +167,10 @@ function Transactions() {
         setCustomEndDate('');
         setCustomMinAmount('');
         setCustomMaxAmount('');
+        setAccountFilter('all');
     };
 
-    const hasActiveFilters = typeFilter !== 'all' || categoryFilter !== 'all' || dateRange !== 'all' || amountFilter !== 'all' || searchQuery;
+    const hasActiveFilters = typeFilter !== 'all' || categoryFilter !== 'all' || dateRange !== 'all' || amountFilter !== 'all' || accountFilter !== 'all' || searchQuery;
 
     return (
         <div className="transactions-page">
@@ -273,6 +280,17 @@ function Transactions() {
                                         <option key={cat.id} value={cat.id}>{cat.icon} {cat.name}</option>
                                     ))}
                                 </optgroup>
+                            </select>
+                        </div>
+
+                        {/* Account Filter */}
+                        <div className="form-group">
+                            <label className="form-label">Account</label>
+                            <select className="form-select" value={accountFilter} onChange={(e) => setAccountFilter(e.target.value)}>
+                                <option value="all">All Accounts</option>
+                                {bankAccounts.map(acc => (
+                                    <option key={acc.id} value={acc.id}>{acc.name}</option>
+                                ))}
                             </select>
                         </div>
 
