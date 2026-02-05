@@ -10,6 +10,7 @@ function Sidebar({ currentView, onViewChange, collapsed, onToggleCollapse, mobil
         { id: 'analytics', label: 'Analytics', icon: AnalyticsIcon },
         { id: 'investments', label: 'Investments', icon: TrendingUpIcon },
         { id: 'goals', label: 'Goals', icon: GoalsIcon },
+        { id: 'autopay', label: 'Auto Pay', icon: AutoPayIcon },
         { id: 'history', label: 'History', icon: HistoryIcon },
     ];
 
@@ -177,6 +178,16 @@ function HistoryIcon() {
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <circle cx="12" cy="12" r="10" />
             <polyline points="12 6 12 12 16 14" />
+        </svg>
+    );
+}
+
+function AutoPayIcon() {
+    return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M21.5 2v6h-6M2.5 22v-6h6" />
+            <path d="M2.5 12a10 10 0 0117.3-6.8L21.5 8" />
+            <path d="M21.5 12a10 10 0 01-17.3 6.8L2.5 16" />
         </svg>
     );
 }

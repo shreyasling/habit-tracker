@@ -3,9 +3,9 @@ import { useFinance } from '../../context/FinanceContext';
 
 function History() {
     const { state } = useFinance();
-    const { transactions, expenseCategories, incomeCategories } = state;
+    const { transactions, expenseCategories, incomeCategories, customCategories = [] } = state;
     const symbol = state.settings.currencySymbol || '$';
-    const allCategories = [...expenseCategories, ...incomeCategories];
+    const allCategories = [...expenseCategories, ...incomeCategories, ...customCategories];
 
     const [selectedMonth, setSelectedMonth] = useState(() => {
         const now = new Date();

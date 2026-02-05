@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useFinance } from '../../context/FinanceContext';
+import CategoryManager from './CategoryManager';
 
 function Settings() {
     const { state, actions } = useFinance();
@@ -184,6 +185,20 @@ function Settings() {
                         </button>
                     </div>
                 </div>
+            </div>
+
+            {/* Categories Section - Full Width */}
+            <div className="card" style={{ padding: '24px', marginBottom: '80px' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20">
+                        <path d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                    Manage Categories
+                </h3>
+                <p style={{ color: 'var(--fin-text-tertiary)', fontSize: '13px', marginBottom: '20px' }}>
+                    Add your own custom categories with custom icons and colors. These will appear everywhere you can select a category.
+                </p>
+                <CategoryManager />
             </div>
 
             {/* Save Button Bar - Sticky at bottom or fixed position */}

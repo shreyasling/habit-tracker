@@ -1468,11 +1468,12 @@
 
 .chatbot-input-area {
     display: flex;
+    flex-direction: column;
     padding: 16px 20px;
     background: var(--fin-bg-card);
     border-top: 1px solid var(--fin-border-primary);
-    align-items: center;
     flex-shrink: 0;
+    gap: 8px;
 }
 
 .chatbot-input-wrapper {
@@ -1946,6 +1947,44 @@
     /* Spending overview mobile */
     .spending-overview {
         padding: 16px;
+    }
+
+    /* Calendar modal mobile fix - prevent horizontal scroll */
+    .calendar-modal {
+        max-width: 95vw !important;
+        width: 95vw !important;
+    }
+
+    .calendar-modal .modal-body {
+        padding: 12px;
+        overflow-x: hidden;
+    }
+
+    .calendar-grid {
+        gap: 2px;
+    }
+
+    .calendar-weekday {
+        padding: 4px 2px;
+        font-size: 10px;
+    }
+
+    .calendar-day {
+        min-width: 0;
+        padding: 4px;
+    }
+
+    .calendar-day-number {
+        font-size: 12px;
+    }
+
+    .calendar-month {
+        font-size: 16px;
+    }
+
+    .calendar-nav-btn {
+        width: 32px;
+        height: 32px;
     }
 }
 

@@ -225,23 +225,55 @@ const useVoiceRecognition = (options = {}) => {
             if (isMobile) {
                 // Disable continuous mode on mobile for better reliability
                 recognition.continuous = false;
+                console.log('[VoiceRecognition] Mobile mode: continuous=false');
             } else {
                 recognition.continuous = continuous;
             }
 
+            console.log('[VoiceRecognition] Language:', language, 'interimResults:', interimResults);
+
+            // Safety timeout for mobile - if no results after 15 seconds of "listening", restart
+            let mobileTimeout = null;
+            const startMobileTimeout = () => {
+                if (isMobile) {
+                    clearTimeout(mobileTimeout);
+                    mobileTimeout = setTimeout(() => {
+                        console.log('[VoiceRecognition] Mobile timeout - no results, restarting...');
+                        if (recognitionRef.current) {
+                            try {
+                                recognitionRef.current.stop();
+                                setTimeout(() => {
+                                    if (recognitionRef.current) {
+                                        recognitionRef.current.start();
+                                    }
+                                }, 300);
+                            } catch (e) {
+                                console.warn('[VoiceRecognition] Timeout restart failed:', e);
+                            }
+                        }
+                    }, 15000);
+                }
+            };
+
             recognition.onstart = () => {
+                console.log('[VoiceRecognition] Recognition STARTED on', isMobile ? 'MOBILE' : 'DESKTOP');
                 setIsListening(true);
                 onStart();
                 // Start visualization with the stream we already have
                 startAudioVisualization(stream);
+                // Start safety timeout on mobile
+                startMobileTimeout();
             };
 
             recognition.onresult = (event) => {
+                console.log('[VoiceRecognition] Got result event:', event.results.length, 'results');
                 let finalTranscript = '';
                 let interimText = '';
 
                 for (let i = event.resultIndex; i < event.results.length; i++) {
                     const result = event.results[i];
+                    console.log('[VoiceRecognition] Result', i, ':', result[0].transcript, 'isFinal:', result.isFinal);
+
                     if (result.isFinal) {
                         finalTranscript += result[0].transcript;
                     } else {
@@ -262,6 +294,31 @@ const useVoiceRecognition = (options = {}) => {
                 if (interimText) {
                     onResult({ type: 'interim', text: interimText });
                 }
+            };
+
+            // Add soundstart/soundend handlers to detect if audio is being captured
+            recognition.onsoundstart = () => {
+                console.log('[VoiceRecognition] Sound started - mic is picking up audio');
+            };
+
+            recognition.onsoundend = () => {
+                console.log('[VoiceRecognition] Sound ended');
+            };
+
+            recognition.onspeechstart = () => {
+                console.log('[VoiceRecognition] Speech started - voice detected');
+            };
+
+            recognition.onspeechend = () => {
+                console.log('[VoiceRecognition] Speech ended');
+            };
+
+            recognition.onaudiostart = () => {
+                console.log('[VoiceRecognition] Audio capture started');
+            };
+
+            recognition.onaudioend = () => {
+                console.log('[VoiceRecognition] Audio capture ended');
             };
 
             recognition.onerror = (event) => {

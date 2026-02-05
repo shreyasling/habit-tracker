@@ -55,7 +55,7 @@ function LoginScreen() {
                         </div>
                     </div>
 
-                    <div className="module-preview-item coming-soon">
+                    <div className="module-preview-item">
                         <div className="module-icon blue">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                 <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
@@ -64,7 +64,6 @@ function LoginScreen() {
                         <div className="module-info">
                             <h3>Financial Management</h3>
                             <p>Budgets, expenses & savings goals</p>
-                            <span className="coming-badge">Coming Soon</span>
                         </div>
                     </div>
                 </div>

@@ -176,6 +176,13 @@ function VoiceInput({
             {/* Recording Indicator */}
             {isListening && (
                 <div className="recording-indicator">
+                    {/* Status text for mobile */}
+                    {isMobile && (
+                        <span className="listening-status">
+                            {audioLevel > 0.1 ? '🎤 Speak now...' : '👂 Listening...'}
+                        </span>
+                    )}
+
                     {/* Waveform Animation */}
                     {showWaveform && (
                         <div className="waveform">

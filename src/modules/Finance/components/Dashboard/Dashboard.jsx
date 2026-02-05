@@ -81,7 +81,7 @@ function Dashboard({ onPayClick, onAddExpenseClick, onCalendarClick, onAskAIClic
                     {/* Latest Transactions */}
                     <LatestTransactions
                         transactions={derivedData.recentTransactions}
-                        categories={[...state.expenseCategories, ...state.incomeCategories]}
+                        categories={[...state.expenseCategories, ...state.incomeCategories, ...(state.customCategories || [])]}
                         symbol={symbol}
                         onViewAll={() => onViewChange('transactions')}
                     />

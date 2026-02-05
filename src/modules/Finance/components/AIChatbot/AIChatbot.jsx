@@ -36,13 +36,13 @@ function AIChatbot({ onClose }) {
         // 3. Or if it explicitly mentions "spent", "paid", "added", "expense".
 
         const hasNumber = /\d/.test(text);
-        const isQuestion = /^(how|what|why|show|list|can you|do i)/i.test(text);
+        const isQuestion = /^(how|what|why|show|list|can you|do i|where|which|top|compare)/i.test(text);
 
         let plans = null;
 
         // If it looks like a transaction request, try to parse it
         if (hasNumber && !isQuestion) {
-            plans = await parseTransactionIntentAI(text, state.categories, state.bankAccounts);
+            plans = await parseTransactionIntentAI(text, context.categories, state.bankAccounts);
         }
 
         if (plans && plans.length > 0) {
@@ -59,6 +59,16 @@ function AIChatbot({ onClose }) {
         // 2. If not a transaction, ask the AI
         const aiResponse = await chatWithFinanceAI(text, context);
 
+        // Handle new response format with text and richData
+        if (typeof aiResponse === 'object' && aiResponse.text) {
+            return {
+                type: 'ai',
+                content: aiResponse.text || "I didn't understand that. Could you try rephrasing?",
+                richData: aiResponse.richData || null
+            };
+        }
+
+        // Fallback for old string format
         return {
             type: 'ai',
             content: aiResponse || "I didn't understand that. Could you try rephrasing?"
@@ -81,12 +91,19 @@ function AIChatbot({ onClose }) {
         // Capture context IMMEDIATELY to avoid stale closure
         const totalBalance = state.bankAccounts.reduce((sum, acc) => sum + acc.balance, 0);
         const monthlySpend = derivedData.monthlySpend || 0;
-        const budget = state.settings.monthlyBudget || 0;
+        const budget = derivedData.monthlyBudget || 0;
+
+        // Combine all categories (default + custom)
+        const allCategories = [
+            ...state.expenseCategories,
+            ...state.incomeCategories,
+            ...(state.customCategories || [])
+        ];
 
         // Helper to enrich transactions with category names
         const enrichTransactions = (txs) => {
             return txs.map(tx => {
-                const category = state.categories.find(c => c.id === tx.categoryId);
+                const category = allCategories.find(c => c.id === tx.categoryId);
                 return {
                     ...tx,
                     categoryName: category ? category.name : (tx.categoryName || 'Unknown')
@@ -97,12 +114,14 @@ function AIChatbot({ onClose }) {
         const currentContext = {
             symbol,
             totalBalance,
-            recentTransactions: enrichTransactions(state.transactions), // Send ALL enriched transactions
+            // Send ALL transactions for comprehensive analysis
+            allTransactions: enrichTransactions(state.transactions),
+            recentTransactions: enrichTransactions(state.transactions.slice(0, 50)),
             monthlySpend,
             budget,
             remaining: budget - monthlySpend,
             accounts: state.bankAccounts,
-            categories: state.categories
+            categories: allCategories
         };
 
         // Process directly (no timeout needed for async logic)
@@ -117,13 +136,22 @@ function AIChatbot({ onClose }) {
 
     const handleConfirmTransaction = async (data) => {
         try {
+            // Use date from AI parsing if available (e.g., "yesterday"), otherwise use now
+            let transactionDate = new Date().toISOString();
+            if (data.date) {
+                // Parse the YYYY-MM-DD date and set to current time
+                const [year, month, day] = data.date.split('-').map(Number);
+                const parsedDate = new Date(year, month - 1, day, new Date().getHours(), new Date().getMinutes());
+                transactionDate = parsedDate.toISOString();
+            }
+
             await actions.addTransaction({
                 amount: parseFloat(data.amount),
                 note: data.note,
                 categoryId: data.categoryId,
                 bankAccountId: data.bankAccountId,
-                type: data.type || 'expense', // Use detected type or default to expense
-                date: new Date().toISOString(),
+                type: data.type || 'expense',
+                date: transactionDate,
             });
 
             const typeLabel = data.type === 'income' ? 'Income' : 'Expense';
@@ -148,6 +176,216 @@ function AIChatbot({ onClose }) {
             e.preventDefault();
             handleSend();
         }
+    };
+
+    // Rich Data Renderer Component
+    const RichDataRenderer = ({ data }) => {
+        if (!data) return null;
+
+        const { type } = data;
+
+        // Category Breakdown Table
+        if (type === 'category_breakdown') {
+            return (
+                <div style={{
+                    background: 'linear-gradient(135deg, var(--fin-accent-primary) 0%, var(--fin-accent-secondary) 100%)',
+                    borderRadius: 'var(--fin-radius-lg)',
+                    padding: '16px',
+                    marginTop: '12px',
+                    color: 'white'
+                }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                        <span style={{ fontSize: '18px' }}>📊</span>
+                        <span style={{ fontWeight: 600 }}>{data.title || 'Top Spending Categories'}</span>
+                    </div>
+                    <div style={{ fontSize: '12px', opacity: 0.8, marginBottom: '16px' }}>
+                        {data.subtitle || 'Based on your monthly spending'}
+                    </div>
+
+                    {/* Table Header */}
+                    <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: '1fr auto auto',
+                        gap: '12px',
+                        padding: '8px 0',
+                        borderBottom: '1px solid rgba(255,255,255,0.2)',
+                        fontSize: '11px',
+                        fontWeight: 500,
+                        opacity: 0.8
+                    }}>
+                        <span>Category</span>
+                        <span style={{ textAlign: 'right' }}>Avg. Monthly</span>
+                        <span style={{ textAlign: 'right' }}>% of Income</span>
+                    </div>
+
+                    {/* Table Rows */}
+                    {(data.data || []).map((item, idx) => (
+                        <div key={idx} style={{
+                            display: 'grid',
+                            gridTemplateColumns: '1fr auto auto',
+                            gap: '12px',
+                            padding: '12px 0',
+                            borderBottom: idx < data.data.length - 1 ? '1px solid rgba(255,255,255,0.1)' : 'none',
+                            alignItems: 'center'
+                        }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <span style={{ fontSize: '16px' }}>{item.icon || '📦'}</span>
+                                <span style={{ fontWeight: 500 }}>{item.category}</span>
+                            </div>
+                            <span style={{ fontWeight: 600, textAlign: 'right' }}>
+                                {symbol}{(item.amount || 0).toLocaleString()}
+                            </span>
+                            <span style={{
+                                background: 'rgba(255,255,255,0.2)',
+                                padding: '4px 8px',
+                                borderRadius: '12px',
+                                fontSize: '12px',
+                                fontWeight: 600
+                            }}>
+                                {item.percentage || 0}%
+                            </span>
+                        </div>
+                    ))}
+
+                    {/* Summary */}
+                    {data.summary && (
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            marginTop: '16px',
+                            paddingTop: '12px',
+                            borderTop: '1px solid rgba(255,255,255,0.2)',
+                            fontSize: '12px'
+                        }}>
+                            <div>
+                                <div style={{ opacity: 0.8 }}>Total Income (Monthly)</div>
+                                <div style={{ fontWeight: 600, fontSize: '14px' }}>{symbol}{(data.summary.totalIncome || 0).toLocaleString()}</div>
+                            </div>
+                            <div style={{ textAlign: 'right' }}>
+                                <div style={{ opacity: 0.8 }}>Total Spent (Top {data.data?.length || 0})</div>
+                                <div style={{ fontWeight: 600, fontSize: '14px' }}>{symbol}{(data.summary.totalSpent || 0).toLocaleString()}</div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        // Comparison Card
+        if (type === 'comparison') {
+            const isIncrease = data.change > 0;
+            return (
+                <div style={{
+                    background: 'var(--fin-bg-elevated)',
+                    borderRadius: 'var(--fin-radius-lg)',
+                    padding: '16px',
+                    marginTop: '12px',
+                    border: '1px solid var(--fin-border-primary)'
+                }}>
+                    <div style={{ fontWeight: 600, marginBottom: '16px' }}>{data.title || 'Comparison'}</div>
+                    <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
+                        {(data.periods || []).map((period, idx) => (
+                            <div key={idx} style={{
+                                flex: 1,
+                                background: 'var(--fin-bg-secondary)',
+                                padding: '12px',
+                                borderRadius: 'var(--fin-radius-md)',
+                                textAlign: 'center'
+                            }}>
+                                <div style={{ fontSize: '12px', color: 'var(--fin-text-muted)', marginBottom: '4px' }}>{period.label}</div>
+                                <div style={{ fontSize: '18px', fontWeight: 600 }}>{symbol}{(period.amount || 0).toLocaleString()}</div>
+                            </div>
+                        ))}
+                    </div>
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px',
+                        padding: '8px',
+                        background: isIncrease ? 'rgba(239, 68, 68, 0.1)' : 'rgba(34, 197, 94, 0.1)',
+                        borderRadius: 'var(--fin-radius-sm)',
+                        color: isIncrease ? 'var(--fin-error)' : 'var(--fin-success)',
+                        fontWeight: 600
+                    }}>
+                        <span>{isIncrease ? '📈' : '📉'}</span>
+                        <span>{Math.abs(data.change || 0)}% {data.changeLabel || (isIncrease ? 'increase' : 'decrease')}</span>
+                    </div>
+                </div>
+            );
+        }
+
+        // Stats Cards
+        if (type === 'stats') {
+            return (
+                <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(2, 1fr)',
+                    gap: '8px',
+                    marginTop: '12px'
+                }}>
+                    {(data.cards || []).map((card, idx) => (
+                        <div key={idx} style={{
+                            background: 'var(--fin-bg-elevated)',
+                            padding: '12px',
+                            borderRadius: 'var(--fin-radius-md)',
+                            border: '1px solid var(--fin-border-primary)'
+                        }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+                                <span style={{ fontSize: '16px' }}>{card.icon || '📊'}</span>
+                                <span style={{ fontSize: '11px', color: 'var(--fin-text-muted)' }}>{card.label}</span>
+                            </div>
+                            <div style={{ fontSize: '16px', fontWeight: 600, color: card.color || 'inherit' }}>
+                                {card.value}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            );
+        }
+
+        // Transaction List
+        if (type === 'transactions') {
+            return (
+                <div style={{
+                    background: 'var(--fin-bg-elevated)',
+                    borderRadius: 'var(--fin-radius-lg)',
+                    padding: '12px',
+                    marginTop: '12px',
+                    border: '1px solid var(--fin-border-primary)'
+                }}>
+                    <div style={{ fontWeight: 600, marginBottom: '12px' }}>{data.title || 'Transactions'}</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        {(data.data || []).slice(0, 5).map((tx, idx) => (
+                            <div key={idx} style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                padding: '8px',
+                                background: 'var(--fin-bg-secondary)',
+                                borderRadius: 'var(--fin-radius-sm)'
+                            }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <span>{tx.icon || '📦'}</span>
+                                    <div>
+                                        <div style={{ fontSize: '13px', fontWeight: 500 }}>{tx.category}</div>
+                                        <div style={{ fontSize: '11px', color: 'var(--fin-text-muted)' }}>{tx.note || tx.date}</div>
+                                    </div>
+                                </div>
+                                <span style={{
+                                    fontWeight: 600,
+                                    color: tx.type === 'expense' ? 'var(--fin-error)' : 'var(--fin-success)'
+                                }}>
+                                    {tx.type === 'expense' ? '-' : '+'}{symbol}{(tx.amount || 0).toLocaleString()}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
+        return null;
     };
 
     return (
@@ -206,10 +444,12 @@ function AIChatbot({ onClose }) {
                                     ))}
                                 </div>
                             ) : (
-                                <div className="chat-bubble">
+                                <div className="chat-bubble" style={{ maxWidth: '100%' }}>
                                     {msg.content.split('\n').map((line, i) => (
                                         <p key={i} style={{ margin: i > 0 ? '8px 0 0' : 0 }}>{line}</p>
                                     ))}
+                                    {/* Render rich data components if available */}
+                                    {msg.richData && <RichDataRenderer data={msg.richData} />}
                                 </div>
                             )}
                         </div>
@@ -244,6 +484,81 @@ function AIChatbot({ onClose }) {
                                 <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
                             </svg>
                         </button>
+                    </div>
+
+                    {/* Quick Action Chips */}
+                    <div style={{
+                        display: 'flex',
+                        gap: '8px',
+                        flexWrap: 'wrap',
+                        marginTop: '8px'
+                    }}>
+                        {[
+                            { label: '📊 Top categories', query: 'What categories did I spend most on this month?' },
+                            { label: '📅 Yesterday', query: 'How much did I spend yesterday?' },
+                            { label: '💡 Suggestions', query: 'Analyze my spending and give me tips to save money' },
+                            { label: '📈 Compare weeks', query: 'Compare my spending this week vs last week' }
+                        ].map((chip, idx) => (
+                            <button
+                                key={idx}
+                                onClick={() => {
+                                    setInput(chip.query);
+                                    // Auto-send after a small delay
+                                    setTimeout(() => {
+                                        const userMessage = {
+                                            id: Date.now(),
+                                            type: 'user',
+                                            content: chip.query
+                                        };
+                                        setMessages(prev => [...prev, userMessage]);
+                                        setInput('');
+                                        setIsTyping(true);
+
+                                        const allCategories = [
+                                            ...state.expenseCategories,
+                                            ...state.incomeCategories,
+                                            ...(state.customCategories || [])
+                                        ];
+                                        const enrichTransactions = (txs) => txs.map(tx => {
+                                            const category = allCategories.find(c => c.id === tx.categoryId);
+                                            return { ...tx, categoryName: category?.name || tx.categoryName || 'Unknown' };
+                                        });
+                                        const totalBalance = state.bankAccounts.reduce((sum, acc) => sum + acc.balance, 0);
+                                        const currentContext = {
+                                            symbol,
+                                            totalBalance,
+                                            allTransactions: enrichTransactions(state.transactions),
+                                            recentTransactions: enrichTransactions(state.transactions.slice(0, 50)),
+                                            monthlySpend: derivedData.monthlySpend || 0,
+                                            budget: derivedData.monthlyBudget || 0,
+                                            remaining: derivedData.monthlyBudgetRemaining || 0,
+                                            accounts: state.bankAccounts,
+                                            categories: allCategories
+                                        };
+
+                                        processInput(chip.query, currentContext).then(response => {
+                                            setMessages(prev => [...prev, { id: Date.now() + 1, ...response }]);
+                                            setIsTyping(false);
+                                        });
+                                    }, 100);
+                                }}
+                                style={{
+                                    background: 'var(--fin-bg-elevated)',
+                                    border: '1px solid var(--fin-border-primary)',
+                                    borderRadius: '16px',
+                                    padding: '6px 12px',
+                                    fontSize: '12px',
+                                    color: 'var(--fin-text-secondary)',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '4px',
+                                    transition: 'all 0.2s ease'
+                                }}
+                            >
+                                {chip.label}
+                            </button>
+                        ))}
                     </div>
                 </div>
             </div>

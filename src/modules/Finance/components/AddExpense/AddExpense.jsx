@@ -3,8 +3,14 @@ import { useFinance } from '../../context/FinanceContext';
 
 function AddExpense({ onClose, transactionToEdit = null }) {
     const { state, actions } = useFinance();
-    const { bankAccounts, expenseCategories, incomeCategories } = state;
+    const { bankAccounts, expenseCategories, incomeCategories, customCategories = [] } = state;
     const symbol = state.settings.currencySymbol || '$';
+
+    // Combine default + custom categories
+    const customExpense = customCategories.filter(c => c.type === 'expense');
+    const customIncome = customCategories.filter(c => c.type === 'income');
+    const allExpenseCategories = [...expenseCategories, ...customExpense];
+    const allIncomeCategories = [...incomeCategories, ...customIncome];
 
     const [formData, setFormData] = useState(() => {
         const now = new Date();
@@ -17,7 +23,7 @@ function AddExpense({ onClose, transactionToEdit = null }) {
         return {
             amount: '',
             note: '',
-            categoryId: expenseCategories[0]?.id || 'others',
+            categoryId: allExpenseCategories[0]?.id || 'others',
             bankAccountId: bankAccounts[0]?.id || '',
             type: 'expense',
             date: localDate, // Use local date
@@ -45,15 +51,15 @@ function AddExpense({ onClose, transactionToEdit = null }) {
     // Update category when type changes (only if not editing or explicit user change)
     useEffect(() => {
         if (!transactionToEdit) {
-            if (formData.type === 'expense' && expenseCategories.length > 0) {
-                setFormData(prev => ({ ...prev, categoryId: expenseCategories[0].id }));
-            } else if (formData.type === 'income' && incomeCategories.length > 0) {
-                setFormData(prev => ({ ...prev, categoryId: incomeCategories[0].id }));
+            if (formData.type === 'expense' && allExpenseCategories.length > 0) {
+                setFormData(prev => ({ ...prev, categoryId: allExpenseCategories[0].id }));
+            } else if (formData.type === 'income' && allIncomeCategories.length > 0) {
+                setFormData(prev => ({ ...prev, categoryId: allIncomeCategories[0].id }));
             }
         }
-    }, [formData.type, expenseCategories, incomeCategories, transactionToEdit]);
+    }, [formData.type, allExpenseCategories.length, allIncomeCategories.length, transactionToEdit]);
 
-    const currentCategories = formData.type === 'expense' ? expenseCategories : incomeCategories;
+    const currentCategories = formData.type === 'expense' ? allExpenseCategories : allIncomeCategories;
 
     const handleSubmit = async (e) => {
         e.preventDefault();

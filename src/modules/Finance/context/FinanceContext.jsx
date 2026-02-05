@@ -53,7 +53,9 @@ const initialState = {
         { id: 'interest', name: 'Interest', icon: '🏦', color: '#84cc16' },
         { id: 'other-income', name: 'Other Income', icon: '💰', color: '#6b7280' },
     ],
+    customCategories: [], // User-defined categories
     goals: [], // Initialize goals array
+    autoPays: [], // Initialize auto payments array
     // Combined categories for backward compatibility
     categories: [
         { id: 'food', name: 'Food', icon: '🍔', color: '#22c55e', type: 'expense' },
@@ -178,6 +180,29 @@ function financeReducer(state, action) {
                 goals: (state.goals || []).filter(g => g.id !== action.payload)
             };
 
+        case 'SET_AUTOPAYS':
+            return { ...state, autoPays: action.payload };
+
+        case 'ADD_AUTOPAY':
+            return {
+                ...state,
+                autoPays: [...(state.autoPays || []), action.payload]
+            };
+
+        case 'UPDATE_AUTOPAY':
+            return {
+                ...state,
+                autoPays: (state.autoPays || []).map(ap =>
+                    ap.id === action.payload.id ? { ...ap, ...action.payload } : ap
+                )
+            };
+
+        case 'DELETE_AUTOPAY':
+            return {
+                ...state,
+                autoPays: (state.autoPays || []).filter(ap => ap.id !== action.payload)
+            };
+
         case 'UPDATE_ACCOUNT_BALANCE':
             return {
                 ...state,
@@ -186,6 +211,32 @@ function financeReducer(state, action) {
                         ? { ...acc, balance: acc.balance + action.payload.amount }
                         : acc
                 ),
+            };
+
+        case 'ADD_CUSTOM_CATEGORY':
+            return {
+                ...state,
+                customCategories: [...(state.customCategories || []), action.payload]
+            };
+
+        case 'UPDATE_CUSTOM_CATEGORY':
+            return {
+                ...state,
+                customCategories: (state.customCategories || []).map(cat =>
+                    cat.id === action.payload.id ? { ...cat, ...action.payload } : cat
+                )
+            };
+
+        case 'DELETE_CUSTOM_CATEGORY':
+            return {
+                ...state,
+                customCategories: (state.customCategories || []).filter(cat => cat.id !== action.payload)
+            };
+
+        case 'SET_CUSTOM_CATEGORIES':
+            return {
+                ...state,
+                customCategories: action.payload
             };
 
         case 'COMPLETE_ONBOARDING':
@@ -201,7 +252,9 @@ function financeReducer(state, action) {
 
 export function FinanceProvider({ children, userId }) {
     const [state, dispatch] = useReducer(financeReducer, initialState);
-    const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
+
+    // Derive hasCompletedOnboarding from state settings (synced with loading)
+    const hasCompletedOnboarding = state.settings?.onboardingCompleted || false;
 
     // Load user data from Firestore
     useEffect(() => {
@@ -214,10 +267,8 @@ export function FinanceProvider({ children, userId }) {
 
                 if (userData) {
                     dispatch({ type: 'SET_USER_DATA', payload: userData });
-                    setHasCompletedOnboarding(userData.settings?.onboardingCompleted || false);
                 } else {
                     dispatch({ type: 'SET_LOADING', payload: false });
-                    setHasCompletedOnboarding(false);
                 }
             } catch (error) {
                 console.error('Error loading finance data:', error);
@@ -237,6 +288,60 @@ export function FinanceProvider({ children, userId }) {
             console.error('Error saving finance data:', error);
         }
     }, [userId]);
+
+    // Helper function to calculate next auto pay run
+    const calculateNextAutoPayRun = (autoPay) => {
+        const now = new Date();
+        const [hours, minutes] = (autoPay.time || '09:00').split(':').map(Number);
+        let nextRun = new Date();
+        nextRun.setHours(hours, minutes, 0, 0);
+
+        switch (autoPay.frequency) {
+            case 'daily':
+                nextRun.setDate(nextRun.getDate() + 1);
+                break;
+            case 'weekly':
+                nextRun.setDate(nextRun.getDate() + 7);
+                break;
+            case 'monthly':
+                nextRun.setMonth(nextRun.getMonth() + 1);
+                nextRun.setDate(autoPay.dayOfMonth || 1);
+                break;
+            case 'yearly':
+                nextRun.setFullYear(nextRun.getFullYear() + 1);
+                nextRun.setDate(autoPay.dayOfMonth || 1);
+                break;
+            default:
+                nextRun.setDate(nextRun.getDate() + 1);
+        }
+        return nextRun.toISOString();
+    };
+
+    // Check for due auto payments on load and periodically
+    useEffect(() => {
+        if (!userId || state.loading || !state.autoPays?.length) return;
+
+        const checkDueAutoPays = async () => {
+            const now = new Date();
+            const dueAutoPays = (state.autoPays || []).filter(ap => {
+                if (!ap.isActive) return false;
+                if (!ap.nextRun) return true; // Never run, so it's due
+                return new Date(ap.nextRun) <= now;
+            });
+
+            for (const autoPay of dueAutoPays) {
+                console.log(`Executing auto pay: ${autoPay.name}`);
+                // We'll trigger this through the actions once they're defined
+            }
+        };
+
+        // Check on load
+        checkDueAutoPays();
+
+        // Check every minute
+        const interval = setInterval(checkDueAutoPays, 60000);
+        return () => clearInterval(interval);
+    }, [userId, state.loading, state.autoPays]);
 
     // Actions
     const actions = {
@@ -404,6 +509,57 @@ export function FinanceProvider({ children, userId }) {
             await saveData({ investments: updatedInvestments });
         },
 
+        // Auto Pay Actions
+        addAutoPay: async (autoPay) => {
+            const newAutoPay = {
+                ...autoPay,
+                id: Date.now().toString(),
+                createdAt: new Date().toISOString(),
+            };
+            dispatch({ type: 'ADD_AUTOPAY', payload: newAutoPay });
+            await saveData({ autoPays: [...(state.autoPays || []), newAutoPay] });
+            return newAutoPay;
+        },
+
+        updateAutoPay: async (autoPayId, updates) => {
+            dispatch({ type: 'UPDATE_AUTOPAY', payload: { id: autoPayId, ...updates } });
+            const updatedAutoPays = (state.autoPays || []).map(ap =>
+                ap.id === autoPayId ? { ...ap, ...updates } : ap
+            );
+            await saveData({ autoPays: updatedAutoPays });
+        },
+
+        deleteAutoPay: async (autoPayId) => {
+            dispatch({ type: 'DELETE_AUTOPAY', payload: autoPayId });
+            const updatedAutoPays = (state.autoPays || []).filter(ap => ap.id !== autoPayId);
+            await saveData({ autoPays: updatedAutoPays });
+        },
+
+        // Execute auto pay (create transaction from auto pay)
+        executeAutoPay: async (autoPay) => {
+            const transaction = {
+                amount: autoPay.amount,
+                note: `Auto Pay: ${autoPay.name}`,
+                categoryId: autoPay.categoryId,
+                bankAccountId: autoPay.bankAccountId,
+                type: 'expense',
+                date: new Date().toISOString(),
+                paymentMethod: 'Auto Pay',
+                isAutoPay: true,
+                autoPayId: autoPay.id
+            };
+
+            // Add the transaction
+            await actions.addTransaction(transaction);
+
+            // Update auto pay's lastRun and nextRun
+            const nextRun = calculateNextAutoPayRun(autoPay);
+            await actions.updateAutoPay(autoPay.id, {
+                lastRun: new Date().toISOString(),
+                nextRun: nextRun
+            });
+        },
+
         completeOnboarding: async (data) => {
             const { bankAccounts, monthlyBudget, userName } = data;
 
@@ -426,9 +582,9 @@ export function FinanceProvider({ children, userId }) {
             dispatch({ type: 'UPDATE_SETTINGS', payload: settings });
             dispatch({ type: 'COMPLETE_ONBOARDING' });
 
-            // Save to Firestore
+            // Save to Firestore with onboardingCompleted flag
             await saveUserFinanceData(userId, {
-                settings: { ...state.settings, ...settings },
+                settings: { ...state.settings, ...settings, onboardingCompleted: true },
                 bankAccounts: bankAccounts.map((acc, i) => ({
                     ...acc,
                     id: Date.now().toString() + i,
@@ -439,7 +595,42 @@ export function FinanceProvider({ children, userId }) {
                 goals: [], // Initialize empty goals
             });
 
-            setHasCompletedOnboarding(true);
+            // Update local state with onboardingCompleted flag
+            dispatch({ type: 'UPDATE_SETTINGS', payload: { onboardingCompleted: true } });
+        },
+
+        // Custom Categories
+        addCustomCategory: async (category) => {
+            const newCategory = {
+                ...category,
+                id: `custom-${Date.now()}`,
+                isCustom: true,
+                createdAt: new Date().toISOString()
+            };
+            dispatch({ type: 'ADD_CUSTOM_CATEGORY', payload: newCategory });
+            await saveData({ customCategories: [...(state.customCategories || []), newCategory] });
+            return newCategory;
+        },
+
+        updateCustomCategory: async (id, updates) => {
+            dispatch({ type: 'UPDATE_CUSTOM_CATEGORY', payload: { id, ...updates } });
+            const updatedCategories = (state.customCategories || []).map(cat =>
+                cat.id === id ? { ...cat, ...updates } : cat
+            );
+            await saveData({ customCategories: updatedCategories });
+        },
+
+        deleteCustomCategory: async (id) => {
+            dispatch({ type: 'DELETE_CUSTOM_CATEGORY', payload: id });
+            const filteredCategories = (state.customCategories || []).filter(cat => cat.id !== id);
+            await saveData({ customCategories: filteredCategories });
+        },
+
+        // Get all categories (default + custom) for a type
+        getAllCategories: (type = 'expense') => {
+            const defaultCategories = type === 'expense' ? state.expenseCategories : state.incomeCategories;
+            const customOfType = (state.customCategories || []).filter(cat => cat.type === type);
+            return [...defaultCategories, ...customOfType];
         },
 
         toggleTheme: () => {
@@ -511,6 +702,7 @@ export function FinanceProvider({ children, userId }) {
         totalBalance,
         todaysSpend,
         monthlySpend,
+        monthlyBudget, // Add this so components can access the computed budget
         monthlyBudgetRemaining,
         totalInvestments,
         totalSavedGoals,

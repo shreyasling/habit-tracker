@@ -7,6 +7,13 @@ function CalendarView({ onClose }) {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [selectedDate, setSelectedDate] = useState(null);
 
+    // Combine all categories for lookup
+    const allCategories = [
+        ...state.expenseCategories,
+        ...state.incomeCategories,
+        ...(state.customCategories || [])
+    ];
+
     const getDaysInMonth = (date) => {
         const year = date.getFullYear();
         const month = date.getMonth();
@@ -31,6 +38,12 @@ function CalendarView({ onClose }) {
             .reduce((sum, tx) => sum + tx.amount, 0);
     };
 
+    const getIncomeForDate = (date) => {
+        return getTransactionsForDate(date)
+            .filter(tx => tx.type === 'income')
+            .reduce((sum, tx) => sum + tx.amount, 0);
+    };
+
     const navigateMonth = (direction) => {
         const newDate = new Date(currentDate);
         newDate.setMonth(newDate.getMonth() + direction);
@@ -48,6 +61,9 @@ function CalendarView({ onClose }) {
         .reduce((sum, tx) => sum + tx.amount, 0) / 30;
 
     const selectedTransactions = selectedDate ? getTransactionsForDate(selectedDate) : [];
+    const selectedDaySpend = selectedDate ? getSpendForDate(selectedDate) : 0;
+    const selectedDayIncome = selectedDate ? getIncomeForDate(selectedDate) : 0;
+    const selectedDayNet = selectedDayIncome - selectedDaySpend;
 
     return (
         <div className="modal-overlay" onClick={onClose}>
@@ -107,8 +123,27 @@ function CalendarView({ onClose }) {
                                         ${isHighSpend ? 'high-spend' : ''}
                                     `}
                                     onClick={() => setSelectedDate(date)}
+                                    style={{ position: 'relative', minHeight: '48px' }}
                                 >
                                     <span className="calendar-day-number">{day}</span>
+                                    {daySpend > 0 && (
+                                        <span style={{
+                                            position: 'absolute',
+                                            bottom: '4px',
+                                            left: '50%',
+                                            transform: 'translateX(-50%)',
+                                            fontSize: '9px',
+                                            fontWeight: 600,
+                                            color: isHighSpend ? 'var(--fin-error)' : 'var(--fin-text-muted)',
+                                            whiteSpace: 'nowrap',
+                                            background: 'var(--fin-bg-primary)',
+                                            padding: '1px 4px',
+                                            borderRadius: '4px',
+                                            zIndex: 1
+                                        }}>
+                                            {symbol}{daySpend >= 1000 ? `${(daySpend / 1000).toFixed(1)}K` : daySpend.toFixed(0)}
+                                        </span>
+                                    )}
                                 </div>
                             );
                         })}
@@ -117,17 +152,65 @@ function CalendarView({ onClose }) {
                     {/* Selected Date Transactions */}
                     {selectedDate && (
                         <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid var(--fin-border-primary)' }}>
-                            <h4 style={{ fontSize: '14px', fontWeight: 600, marginBottom: '12px' }}>
-                                {selectedDate.toLocaleDateString('default', { weekday: 'long', month: 'long', day: 'numeric' })}
-                            </h4>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                                <h4 style={{ fontSize: '14px', fontWeight: 600, margin: 0 }}>
+                                    {selectedDate.toLocaleDateString('default', { weekday: 'long', month: 'long', day: 'numeric' })}
+                                </h4>
+                            </div>
+
+                            {/* Daily Summary */}
+                            {selectedTransactions.length > 0 && (
+                                <div style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: 'repeat(3, 1fr)',
+                                    gap: '8px',
+                                    marginBottom: '16px',
+                                    padding: '12px',
+                                    background: 'var(--fin-bg-elevated)',
+                                    borderRadius: 'var(--fin-radius-md)'
+                                }}>
+                                    <div style={{ textAlign: 'center' }}>
+                                        <div style={{ fontSize: '11px', color: 'var(--fin-text-muted)', marginBottom: '4px' }}>Spent</div>
+                                        <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--fin-error)' }}>
+                                            {symbol}{selectedDaySpend.toLocaleString()}
+                                        </div>
+                                    </div>
+                                    <div style={{ textAlign: 'center', borderLeft: '1px solid var(--fin-border-primary)', borderRight: '1px solid var(--fin-border-primary)' }}>
+                                        <div style={{ fontSize: '11px', color: 'var(--fin-text-muted)', marginBottom: '4px' }}>Received</div>
+                                        <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--fin-success)' }}>
+                                            {symbol}{selectedDayIncome.toLocaleString()}
+                                        </div>
+                                    </div>
+                                    <div style={{ textAlign: 'center' }}>
+                                        <div style={{ fontSize: '11px', color: 'var(--fin-text-muted)', marginBottom: '4px' }}>Net</div>
+                                        <div style={{
+                                            fontSize: '14px',
+                                            fontWeight: 600,
+                                            color: selectedDayNet >= 0 ? 'var(--fin-success)' : 'var(--fin-error)'
+                                        }}>
+                                            {selectedDayNet >= 0 ? '+' : ''}{symbol}{selectedDayNet.toLocaleString()}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
                             {selectedTransactions.length === 0 ? (
-                                <p style={{ color: 'var(--fin-text-muted)', fontSize: '14px' }}>
-                                    No transactions on this date
+                                <p style={{ color: 'var(--fin-text-muted)', fontSize: '14px', textAlign: 'center', padding: '20px' }}>
+                                    📪 No transactions on this date
                                 </p>
                             ) : (
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                <div style={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: '8px',
+                                    maxHeight: '250px',
+                                    overflowY: 'auto'
+                                }}>
+                                    <div style={{ fontSize: '12px', color: 'var(--fin-text-secondary)', marginBottom: '4px' }}>
+                                        {selectedTransactions.length} transaction{selectedTransactions.length > 1 ? 's' : ''}
+                                    </div>
                                     {selectedTransactions.map(tx => {
-                                        const category = state.categories.find(c => c.id === tx.categoryId);
+                                        const category = allCategories.find(c => c.id === tx.categoryId);
                                         return (
                                             <div
                                                 key={tx.id}
@@ -137,7 +220,8 @@ function CalendarView({ onClose }) {
                                                     justifyContent: 'space-between',
                                                     padding: '12px',
                                                     background: 'var(--fin-bg-elevated)',
-                                                    borderRadius: 'var(--fin-radius-sm)'
+                                                    borderRadius: 'var(--fin-radius-sm)',
+                                                    borderLeft: `3px solid ${category?.color || 'var(--fin-border-primary)'}`
                                                 }}
                                             >
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -147,7 +231,7 @@ function CalendarView({ onClose }) {
                                                             {tx.note || category?.name || 'Transaction'}
                                                         </div>
                                                         <div style={{ fontSize: '12px', color: 'var(--fin-text-muted)' }}>
-                                                            {new Date(tx.date).toLocaleTimeString('default', { hour: 'numeric', minute: '2-digit' })}
+                                                            {category?.name} • {new Date(tx.date).toLocaleTimeString('default', { hour: 'numeric', minute: '2-digit' })}
                                                         </div>
                                                     </div>
                                                 </div>

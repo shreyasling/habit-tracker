@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { FinanceProvider, useFinance } from './context/FinanceContext';
 import Sidebar from './components/Sidebar/Sidebar';
 import Header from './components/Header/Header';
@@ -16,12 +17,14 @@ import CalendarView from './components/Calendar/CalendarView';
 import AIChatbot from './components/AIChatbot/AIChatbot';
 import Goals from './components/Goals/Goals';
 import Investments from './components/Investments/Investments';
-import { useNavigate } from 'react-router-dom'; // Added useNavigate import
+import AutoPay from './components/AutoPay/AutoPay';
 import './Finance.css';
 
 function FinanceContent({ user }) {
-    const { state, actions, hasCompletedOnboarding } = useFinance(); // Destructured actions
-    const [currentView, setCurrentView] = useState('dashboard');
+    const { state, actions, hasCompletedOnboarding } = useFinance();
+    const navigate = useNavigate();
+    const location = useLocation();
+
     const [showPayFlow, setShowPayFlow] = useState(false);
     const [showAddExpense, setShowAddExpense] = useState(false);
     const [showCalendar, setShowCalendar] = useState(false);
@@ -29,7 +32,12 @@ function FinanceContent({ user }) {
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
     const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
-    const navigate = useNavigate(); // Added useNavigate hook
+
+    // Derive current view from URL path
+    const getCurrentView = () => {
+        const path = location.pathname.replace('/finance', '').replace('/', '') || 'dashboard';
+        return path;
+    };
 
     // Check for mobile
     useEffect(() => {
@@ -44,54 +52,54 @@ function FinanceContent({ user }) {
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
+    // Show loading screen while fetching data
+    if (state.loading) {
+        return (
+            <div className="finance-app" data-theme="dark" style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minHeight: '100vh',
+                background: 'var(--fin-bg-primary)'
+            }}>
+                <div style={{ textAlign: 'center' }}>
+                    <div style={{
+                        width: '48px',
+                        height: '48px',
+                        border: '3px solid var(--fin-border-primary)',
+                        borderTopColor: 'var(--fin-accent-primary)',
+                        borderRadius: '50%',
+                        animation: 'spin 1s linear infinite',
+                        margin: '0 auto 16px'
+                    }} />
+                    <p style={{ color: 'var(--fin-text-secondary)', fontSize: '14px' }}>
+                        Loading your finances...
+                    </p>
+                    <style>{`
+                        @keyframes spin {
+                            to { transform: rotate(360deg); }
+                        }
+                    `}</style>
+                </div>
+            </div>
+        );
+    }
+
     // Show onboarding if user hasn't completed setup
     if (!hasCompletedOnboarding) {
         return <Onboarding user={user} />;
     }
 
-    const renderView = () => {
-        switch (currentView) {
-            case 'dashboard':
-                return <Dashboard
-                    onPayClick={() => setShowPayFlow(true)}
-                    onAddExpenseClick={() => setShowAddExpense(true)}
-                    onCalendarClick={() => setShowCalendar(true)}
-                    onAskAIClick={() => setShowAIChatbot(true)}
-                    onViewChange={handleViewChange}
-                />;
-            case 'transactions':
-                return <Transactions />;
-            case 'accounts':
-                return <Accounts />;
-            case 'analytics':
-                return <Analytics />;
-            case 'history':
-                return <History />;
-            case 'goals':
-                return <Goals />;
-            case 'investments':
-                return <Investments />;
-            case 'ai-assistant': // Added new case for AI Assistant
-                return <AIChatbot onClose={() => setCurrentView('dashboard')} />;
-            case 'settings':
-                return <Settings />;
-            case 'help':
-                return <HelpCenter />;
-            default:
-                return <Dashboard
-                    onPayClick={() => setShowPayFlow(true)}
-                    onAddExpenseClick={() => setShowAddExpense(true)}
-                    onCalendarClick={() => setShowCalendar(true)}
-                    onAskAIClick={() => setShowAIChatbot(true)}
-                    onViewChange={handleViewChange}
-                />;
+    const handleViewChange = (view) => {
+        setMobileSidebarOpen(false);
+        if (view === 'dashboard') {
+            navigate('/finance');
+        } else {
+            navigate(`/finance/${view}`);
         }
     };
 
-    const handleViewChange = (view) => {
-        setCurrentView(view);
-        setMobileSidebarOpen(false);
-    };
+    const currentView = getCurrentView();
 
     return (
         <div
@@ -192,7 +200,42 @@ function FinanceContent({ user }) {
                 <Header user={user} />
 
                 <main className="finance-content">
-                    {renderView()}
+                    <Routes>
+                        <Route
+                            index
+                            element={
+                                <Dashboard
+                                    onPayClick={() => setShowPayFlow(true)}
+                                    onAddExpenseClick={() => setShowAddExpense(true)}
+                                    onCalendarClick={() => setShowCalendar(true)}
+                                    onAskAIClick={() => setShowAIChatbot(true)}
+                                    onViewChange={handleViewChange}
+                                />
+                            }
+                        />
+                        <Route path="transactions" element={<Transactions />} />
+                        <Route path="accounts" element={<Accounts />} />
+                        <Route path="analytics" element={<Analytics />} />
+                        <Route path="history" element={<History />} />
+                        <Route path="goals" element={<Goals />} />
+                        <Route path="investments" element={<Investments />} />
+                        <Route path="autopay" element={<AutoPay />} />
+                        <Route path="ai-assistant" element={<AIChatbot onClose={() => navigate('/finance')} />} />
+                        <Route path="settings" element={<Settings />} />
+                        <Route path="help" element={<HelpCenter />} />
+                        <Route
+                            path="*"
+                            element={
+                                <Dashboard
+                                    onPayClick={() => setShowPayFlow(true)}
+                                    onAddExpenseClick={() => setShowAddExpense(true)}
+                                    onCalendarClick={() => setShowCalendar(true)}
+                                    onAskAIClick={() => setShowAIChatbot(true)}
+                                    onViewChange={handleViewChange}
+                                />
+                            }
+                        />
+                    </Routes>
                 </main>
             </div>
 

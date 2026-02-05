@@ -4,9 +4,9 @@ import AddExpense from '../AddExpense/AddExpense';
 
 function Transactions() {
     const { state, actions } = useFinance();
-    const { transactions, expenseCategories, incomeCategories } = state;
+    const { transactions, expenseCategories, incomeCategories, customCategories = [] } = state;
     const symbol = state.settings.currencySymbol || '$';
-    const allCategories = [...expenseCategories, ...incomeCategories];
+    const allCategories = [...expenseCategories, ...incomeCategories, ...customCategories];
 
     // Modal state
     const [showEditModal, setShowEditModal] = useState(false);
