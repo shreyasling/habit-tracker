@@ -386,12 +386,14 @@ ${periods.yesterday.transactions.length > 0 ? 'Transactions:\n' + formatters.for
 
 THIS WEEK:
 - Total Spent: ${symbol}${periods.thisWeek.expense.toFixed(2)}
-- Total Received: ${symbol}${periods.thisWeek.income.toFixed(2)}
+- Total Income: ${symbol}${periods.thisWeek.income.toFixed(2)}
+- Total Transfers: ${symbol}${(periods.thisWeek.transfer || 0).toFixed(2)}
 - Transaction Count: ${periods.thisWeek.transactions.length}
 
 LAST WEEK:
 - Total Spent: ${symbol}${periods.lastWeek.expense.toFixed(2)}
-- Total Received: ${symbol}${periods.lastWeek.income.toFixed(2)}
+- Total Income: ${symbol}${periods.lastWeek.income.toFixed(2)}
+- Total Transfers: ${symbol}${(periods.lastWeek.transfer || 0).toFixed(2)}
 
 ⚠️ PRE-COMPUTED WEEK COMPARISON:
 - This Week Spent: ${symbol}${periods.thisWeek.expense.toFixed(2)}
@@ -401,13 +403,15 @@ LAST WEEK:
 
 THIS MONTH:
 - Total Spent: ${symbol}${periods.thisMonth.expense.toFixed(2)}
-- Total Received: ${symbol}${periods.thisMonth.income.toFixed(2)}
+- Total Income: ${symbol}${periods.thisMonth.income.toFixed(2)}
+- Total Transfers: ${symbol}${(periods.thisMonth.transfer || 0).toFixed(2)}
 - Transaction Count: ${periods.thisMonth.transactions.length}
 - Daily Average Spending: ${symbol}${insights.dailyAvgSpend.toFixed(2)}
 
 LAST MONTH:
 - Total Spent: ${symbol}${periods.lastMonth.expense.toFixed(2)}
-- Total Received: ${symbol}${periods.lastMonth.income.toFixed(2)}
+- Total Income: ${symbol}${periods.lastMonth.income.toFixed(2)}
+- Total Transfers: ${symbol}${(periods.lastMonth.transfer || 0).toFixed(2)}
 - Transaction Count: ${periods.lastMonth.transactions.length}
 
 ═══════════════════════════════════════════════════════════════
