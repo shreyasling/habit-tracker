@@ -95,10 +95,18 @@ function computeFinancialAnalytics(transactions, categories, symbol) {
     const dateRanges = getDateRanges();
     const now = new Date();
 
-    // Helper to check if date is in range
+    // Helper to normalize date to start of day for comparison
+    const normalizeDate = (dateInput) => {
+        const d = new Date(dateInput);
+        return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    };
+
+    // Helper to check if date is in range (inclusive)
     const isInRange = (dateStr, range) => {
-        const d = new Date(dateStr);
-        return d >= range.start && d <= range.end;
+        const d = normalizeDate(dateStr);
+        const start = normalizeDate(range.start);
+        const end = normalizeDate(range.end);
+        return d >= start && d <= end;
     };
 
     // Helper to format date
@@ -149,6 +157,15 @@ function computeFinancialAnalytics(transactions, categories, symbol) {
     const lastMonthTxs = groupByPeriod(transactions, dateRanges.lastMonth);
     const last7DaysTxs = groupByPeriod(transactions, dateRanges.last7Days);
     const last30DaysTxs = groupByPeriod(transactions, dateRanges.last30Days);
+
+    // Debug logging
+    console.log('[FinanceAI] Date Ranges:', {
+        thisMonth: { start: dateRanges.thisMonth.start.toISOString(), end: dateRanges.thisMonth.end.toISOString() },
+        lastMonth: { start: dateRanges.lastMonth.start.toISOString(), end: dateRanges.lastMonth.end.toISOString() }
+    });
+    console.log('[FinanceAI] Total transactions passed:', transactions.length);
+    console.log('[FinanceAI] This month transactions:', thisMonthTxs.length, 'Total expense:', calcTotals(thisMonthTxs).expense);
+    console.log('[FinanceAI] Last month transactions:', lastMonthTxs.length, 'Total expense:', calcTotals(lastMonthTxs).expense);
 
     // Category-wise breakdown for this month
     const thisMonthByCategory = groupByCategory(thisMonthTxs, 'expense');
