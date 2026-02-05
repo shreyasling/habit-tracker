@@ -668,7 +668,20 @@ export function FinanceProvider({ children, userId }) {
             const txDate = new Date(tx.date);
             return txDate.getMonth() === now.getMonth() &&
                 txDate.getFullYear() === now.getFullYear() &&
-                tx.type === 'expense';
+                tx.type === 'expense' &&
+                tx.includeInBudget !== false; // Only count if included in budget
+        })
+        .reduce((sum, tx) => sum + tx.amount, 0);
+
+    // Calculate income that should be added back to budget (e.g., friend paybacks)
+    const monthlyBudgetIncome = transactions
+        .filter(tx => {
+            const now = new Date();
+            const txDate = new Date(tx.date);
+            return txDate.getMonth() === now.getMonth() &&
+                txDate.getFullYear() === now.getFullYear() &&
+                tx.type === 'income' &&
+                tx.includeInBudget === true; // Only add income explicitly marked to include
         })
         .reduce((sum, tx) => sum + tx.amount, 0);
 
@@ -677,7 +690,8 @@ export function FinanceProvider({ children, userId }) {
         ? state.settings.budgets[currentMonthKey]
         : state.settings.monthlyBudget;
 
-    const monthlyBudgetRemaining = monthlyBudget - monthlySpend;
+    // Budget remaining = base budget - expenses (with includeInBudget) + income (with includeInBudget)
+    const monthlyBudgetRemaining = monthlyBudget - monthlySpend + monthlyBudgetIncome;
 
     const totalInvestments = (state.investments || []).reduce((sum, inv) => sum + (inv.currentValue || 0), 0);
 

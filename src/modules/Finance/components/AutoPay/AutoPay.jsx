@@ -16,7 +16,8 @@ function AutoPay() {
         dayOfWeek: 1,
         time: '09:00',
         isActive: true,
-        note: ''
+        note: '',
+        includeInBudget: true // Default: include in budget
     });
 
     const frequencies = [
@@ -67,7 +68,8 @@ function AutoPay() {
             dayOfWeek: 1,
             time: '09:00',
             isActive: true,
-            note: ''
+            note: '',
+            includeInBudget: true
         });
         setEditingAutoPay(null);
     };
@@ -139,7 +141,8 @@ function AutoPay() {
             dayOfWeek: autoPay.dayOfWeek || 1,
             time: autoPay.time || '09:00',
             isActive: autoPay.isActive,
-            note: autoPay.note || ''
+            note: autoPay.note || '',
+            includeInBudget: autoPay.includeInBudget !== false // Default true for old auto-pays
         });
         setEditingAutoPay(autoPay);
         setShowAddModal(true);
@@ -678,6 +681,51 @@ function AutoPay() {
                                         boxSizing: 'border-box'
                                     }}
                                 />
+                            </div>
+
+                            {/* Include in Budget Toggle */}
+                            <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                padding: '12px 16px',
+                                background: 'var(--fin-bg-elevated)',
+                                borderRadius: 'var(--fin-radius-md)',
+                                marginBottom: '8px',
+                                cursor: 'pointer'
+                            }}
+                                onClick={() => handleInputChange('includeInBudget', !formData.includeInBudget)}
+                            >
+                                <div>
+                                    <span style={{ fontWeight: 500, color: 'var(--fin-text-primary)', fontSize: '13px' }}>
+                                        Include in Budget
+                                    </span>
+                                    <p style={{ fontSize: '11px', color: 'var(--fin-text-muted)', marginTop: '2px' }}>
+                                        Deduct from monthly budget when paid
+                                    </p>
+                                </div>
+                                <div
+                                    style={{
+                                        width: '44px',
+                                        height: '24px',
+                                        borderRadius: '12px',
+                                        background: formData.includeInBudget ? 'var(--fin-accent-primary)' : 'var(--fin-bg-tertiary)',
+                                        position: 'relative',
+                                        transition: 'background 0.2s'
+                                    }}
+                                >
+                                    <div style={{
+                                        width: '20px',
+                                        height: '20px',
+                                        borderRadius: '50%',
+                                        background: 'white',
+                                        position: 'absolute',
+                                        top: '2px',
+                                        left: formData.includeInBudget ? '22px' : '2px',
+                                        transition: 'left 0.2s',
+                                        boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
+                                    }} />
+                                </div>
                             </div>
                         </div>
 

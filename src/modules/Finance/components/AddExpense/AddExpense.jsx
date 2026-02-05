@@ -27,7 +27,8 @@ function AddExpense({ onClose, transactionToEdit = null }) {
             bankAccountId: bankAccounts[0]?.id || '',
             type: 'expense',
             date: localDate, // Use local date
-            time: now.toTimeString().slice(0, 5)
+            time: now.toTimeString().slice(0, 5),
+            includeInBudget: true // Default: include in budget
         };
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -43,7 +44,8 @@ function AddExpense({ onClose, transactionToEdit = null }) {
                 bankAccountId: transactionToEdit.bankAccountId || '',
                 type: transactionToEdit.type,
                 date: dateObj.toISOString().split('T')[0],
-                time: dateObj.toTimeString().slice(0, 5)
+                time: dateObj.toTimeString().slice(0, 5),
+                includeInBudget: transactionToEdit.includeInBudget !== false // Default true for old transactions
             });
         }
     }, [transactionToEdit]);
@@ -75,6 +77,7 @@ function AddExpense({ onClose, transactionToEdit = null }) {
                 bankAccountId: formData.bankAccountId,
                 type: formData.type,
                 date: dateTime.toISOString(),
+                includeInBudget: formData.includeInBudget,
             };
 
             if (transactionToEdit) {
@@ -254,6 +257,54 @@ function AddExpense({ onClose, transactionToEdit = null }) {
                                     onChange={(e) => setFormData({ ...formData, time: e.target.value })}
                                 />
                             </div>
+                        </div>
+
+                        {/* Include in Budget Toggle */}
+                        <div className="form-group" style={{ marginTop: '8px' }}>
+                            <label style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                padding: '12px 16px',
+                                background: 'var(--fin-bg-elevated)',
+                                borderRadius: 'var(--fin-radius-md)',
+                                cursor: 'pointer'
+                            }}>
+                                <div>
+                                    <span style={{ fontWeight: 500, color: 'var(--fin-text-primary)' }}>
+                                        Include in Budget
+                                    </span>
+                                    <p style={{ fontSize: '12px', color: 'var(--fin-text-muted)', marginTop: '2px' }}>
+                                        {formData.type === 'expense'
+                                            ? 'Deduct from monthly budget'
+                                            : 'Add to remaining budget (e.g., friend payback)'}
+                                    </p>
+                                </div>
+                                <div
+                                    onClick={() => setFormData({ ...formData, includeInBudget: !formData.includeInBudget })}
+                                    style={{
+                                        width: '44px',
+                                        height: '24px',
+                                        borderRadius: '12px',
+                                        background: formData.includeInBudget ? 'var(--fin-accent-primary)' : 'var(--fin-bg-tertiary)',
+                                        position: 'relative',
+                                        transition: 'background 0.2s',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    <div style={{
+                                        width: '20px',
+                                        height: '20px',
+                                        borderRadius: '50%',
+                                        background: 'white',
+                                        position: 'absolute',
+                                        top: '2px',
+                                        left: formData.includeInBudget ? '22px' : '2px',
+                                        transition: 'left 0.2s',
+                                        boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
+                                    }} />
+                                </div>
+                            </label>
                         </div>
                     </div>
                     <div className="modal-footer">
