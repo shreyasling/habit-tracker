@@ -138,14 +138,16 @@ function computeFinancialAnalytics(transactions, categories, symbol) {
         return grouped;
     };
 
-    // Calculate totals
+    // Calculate totals - ONLY count actual expenses, NOT transfers
     const calcTotals = (txs) => {
-        let income = 0, expense = 0;
+        let income = 0, expense = 0, transfer = 0;
         txs.forEach(t => {
             if (t.type === 'income') income += t.amount;
-            else expense += t.amount;
+            else if (t.type === 'expense') expense += t.amount;
+            else if (t.type === 'transfer') transfer += t.amount;
+            // Ignore any other types
         });
-        return { income, expense, net: income - expense };
+        return { income, expense, transfer, net: income - expense };
     };
 
     // Get transactions for each period
